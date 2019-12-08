@@ -307,9 +307,9 @@
     <content type="text"><![CDATA[为了方便的获取微信群成员的信息，找到了一个很强大的python项目itchat，它将网页微信的各种操作都封装成了朴有天python类，简单的几行代码就能完成需求。项目主页。在这里记录我的操作过程 操作过程首先安装itchat 1pip install itchat 进入python环境，一步一步输入命令代码 123import itchat#登录网页微信，会弹出一个二维码，扫描一下itchat.auto_login() 成功扫描登陆后，python控制台会显示成功 然后就可以操作微信了 123456#获取所有的群roomslist = itchat.get_chatrooms()#通过群名称找到群 myroom=itchat.search_chatrooms(name=u'大侠群')#查看roomlist内容，找到群A的群号ID，一般为‘@@09if83xxx4c2c3850...’形式#获取群A的成员信息，返回一个包含信息的类mems=itchat.update_chatroom('ID', detailedMember=True) 1234567891011#使用json将mems转换为dictimport jsonmemstr=json.dumps(mems)memdict=json.loads(memstr)#取得dict里的listmemlist=memdict['MemberList']#遍历list，将需要的信息写入txtwith open('F:/A.csv','a',encoding='utf-8') as f: for mlist in memlist: strs=mlist['NickName']+','+mlist['DisplayName']+','+mlist['UserName']+','+str(mlist['Sex'])+','+mlist['City']+'\n' f.write(strs) 生成的txt文件可能会存在乱码的情况，一般用utf-8编码打开txt文件后，再转为ANSI编码保存一下就可以解决。如图 扩展itchat的功能很丰富，可以用来部署个人自动微信号（很多淘宝助手的个人微信号估计就是这么做的），可以用来远程控制物联网终端。 类似的项目也有很多 youfou/wxpy: 优秀的api包装和配套插件，微信机器人/优雅的微信个人号API liuwons/wxBot: 类似的基于Python的微信机器人 zixia/wechaty: 基于Javascript(ES6)的微信个人账号机器人NodeJS框架/库 sjdy521/Mojo-Weixin: 使用Perl语言编写的微信客户端框架，可通过插件提供基于HTTP协议的api接口供其他语言调用 HanSon/vbot: 基于PHP7的微信个人号机器人，通过实现匿名函数可以方便地实现各种自定义的功能]]></content>
       <tags>
         <tag>python</tag>
+        <tag>itchat</tag>
         <tag>微信</tag>
         <tag>wechat</tag>
-        <tag>itchat</tag>
         <tag>爬虫</tag>
       </tags>
   </entry>
@@ -318,8 +318,8 @@
     <url>%2F45450%2F</url>
     <content type="text"><![CDATA[上一篇体会到了itchat微信接口的强大与便捷，便想着做一个自动回复的微信，过程很简单，都是现成的接口，调用一下就可以了 整个调试过程也就半个小时，比较简单，直接上代码 1234567891011121314151617181920212223242526272829303132import itchatfrom itchat.content import *import requestsimport json@itchat.msg_register([TEXT,PICTURE,MAP,CARD,NOTE,SHARING])def text_reply(msg): if msg.type==TEXT: reply='hello' text=dict(text=msg.text) inputText=dict(inputText=text) userInfo=dict(apiKey='xxxxxxxxxxxd474eaxxxxx' ,userId='4xxxxxx') postjson=dict(perception=inputText,userInfo=userInfo) postjson=json.dumps(postjson) r = requests.post("http://openapi.tuling123.com/openapi/api/v2", data=postjson) print(r.text) res=r.json() rescode=res['intent']['code'] if rescode &gt;= 0: reply=res['results'][0]['values']['text'] else : if msg.text.find('吗') &gt; -1: reply=msg.text.split('吗')[0]+'!' else : reply=msg.text+'哟!' msg.user.send('%s' % (reply))itchat.auto_login()itchat.run(True) 具体就是要去图灵机器人注册一个账号，创建一个应用，得到apiKey和userID，然后就可以通过http post接口交换聊天信息了。 itchat注册消息到达函数，把朋友发来的消息交给图灵去处理，然后把图灵返回的消息发送给朋友。 效果如下： 另外，代码中还包含了价值一个亿的AI聊天机器人核心代码 更新 百度智能对话 接入百度在人工智能方面也是领头羊的地位，他的 UNIT智能对话平台 也是非常理想的聊天机器人 官网UNIT搭载业界领先的需求理解、对话控制及底层的自然语言处理、知识挖掘等核心技术让您的产品快速拥有对话交互能力， SDK文档UNIT机器人对话API文档 1234567891011121314151617181920212223def baiduAI(yousay): pass post_dict = dict(version='2.0', log_id='UNITTEST_10000') post_dict['service_id'] = 'S19668' post_dict['skill_id'] = '63755' post_dict['session_id'] = '' request_dict = dict(user_id='1111', query=yousay) post_dict['request'] = request_dict postjson = json.dumps(post_dict) r = requests.post( "https://aip.baidubce.com/rpc/2.0/unit/bot/chat?access_token=&#123;24.4d2xxxxxx.1564144088.282335-16652172&#125;", data=postjson) res = r.json() if res['error_code'] == 0: res_dict = dict( code=0, string=res['result']['response']['action_list'][0]['say']) # 返回权重最高的一句话 else: res_dict = dict(code=1, string='') return res_dict]]></content>
       <tags>
-        <tag>微信</tag>
         <tag>itchat</tag>
+        <tag>微信</tag>
         <tag>图灵机器人</tag>
         <tag>聊天机器人</tag>
         <tag>百度聊天机器人</tag>
