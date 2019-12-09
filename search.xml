@@ -167,6 +167,17 @@
       </tags>
   </entry>
   <entry>
+    <title><![CDATA[灰度图像的腐蚀膨胀操作原理]]></title>
+    <url>%2F37744%2F</url>
+    <content type="text"><![CDATA[形态学操作一般是对二值图像的操作，但是在MATLAB中，灰度图像也有形态学处理。其原理为 结论：平坦的灰度膨胀是一个局部最大值算子。 结论：平坦的灰度腐蚀是一个局部最小值算子。]]></content>
+      <categories>
+        <category>网易博客</category>
+      </categories>
+      <tags>
+        <tag>网易</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[清空输入缓冲区]]></title>
     <url>%2F24236%2F</url>
     <content type="text"><![CDATA[1.为什么 fflush(stdin) 是错的？首先请看以下程序： 123456789101112#include &lt;stdio.h&gt;int main( void )&#123; int i; for (;;) &#123; fputs("Please input an integer: ", stdout); scanf("%d", &amp;i); printf("%d\n", i); &#125; return 0;&#125; ​ 这个程序首先会提示用户输入一个整数，然后等待用户输入，如果用户输入的是整数，程序会输出刚才输入的整数，并且再次提示用户输入一个整数，然后等待用户 输入。但是一旦用户输入的不是整数（如小数或者字母），假设 scanf 函数最后一次得到的整数是 2 ，那么程序会不停地输出“Please input an integer: 2”。这是因为 scanf(“%d”, &amp;i); 只能接受整数，如果用户输入了字母，则这个字母会遗留在“输入缓冲区”中。因为缓冲中有数据，故而 scanf 函数不会等待用户输入，直接就去缓冲中读取，可是缓冲中的却是字母，这个字母再次被遗留在缓冲中，如此反复，从而导致不停地输出“Please input an integer: 2”。 也许有人会说：“居然这样，那么在 scanf 函数后面加上‘fflush(stdin);’，把输入缓冲清空掉不就行了？”然而这是错的！ C和C++的标准里从来没有定义过 fflush(stdin)。​ 也许有人会说：“可是我用 fflush(stdin) 解决了这个问题，你怎么能说是错的呢？”​ 的确，某些编译器（如VC6）支持用 fflush(stdin) 来清空输入缓冲，但是并非所有编译器都要支持这个功能（linux 下的 gcc 就不支持），因为标准中根本没有定义 fflush(stdin)。MSDN 文档里 也清楚地写着fflush on input stream is an extension to the C standard（fflush 操作输入流是对 C 标准的扩充）。当然，如果你毫不在乎程序的移植性，用 fflush(stdin) 也没什么大问题。以下是 C99 对 fflush 函数的定义： int fflush(FILE *stream) ​ 如果 stream 指向输出流或者更新流（update stream），并且这个更新流最近执行的操作不是输入，​ 那么 fflush 函数将把这个流中任何待写数据传送至宿主环境（host environment）写入文件。否则，它的行为是未定义的。 原文如下： int fflush(FILE *stream);If stream points to an output stream or an update stream in which the most recent operation was not input, the fflush function causes any unwritten data for that stream to be delivered to the host environmentto be written to the file; otherwise, the behavior is undefined. 其中，宿主环境可以理解为操作系统或内核等。 由此可知，如果 stream 指向输入流（如 stdin），那么 fflush 函数的行为是不确定的。故而使用 fflush(stdin)是不正确的，至少是移植性不好的。 2.清空输入缓冲区的方法​ 虽然不可以用 fflush(stdin)，但是我们可以自己写代码来清空输入缓冲区。只需要在 scanf 函数后面加上几句简单的代码就可以了。 123456789101112131415161718192021222324252627/* C 版本 */#include &lt;stdio.h&gt;int main( void )&#123; int i, c; for ( ; ; ) &#123; fputs("Please input an integer: ", stdout); scanf("%d", &amp;i); if ( feof(stdin) || ferror(stdin) ) &#123; /* 如果用户输入文件结束标志（或文件已被读完）， */ /* 或者发生读写错误，则退出循环 */ /* do something */ break; &#125; /* 没有发生错误，清空输入流。 */ /* 通过 while 循环把输入流中的余留数据“吃”掉 */ while ( (c = getchar()) != '\n' &amp;&amp; c != EOF ) ; /* 使用 scanf("%*[^\n]"); 也可以清空输入流， */ /* 不过会残留 \n 字符。 */ printf("%d\n", i); &#125; return 0;&#125; 12345678910111213141516171819202122232425262728293031323334/* C++ 版本 */#include &lt;iostream&gt;#include &lt;limits&gt; // 为了使用numeric_limitsusing namespace std;int main()&#123; int value; for ( ; ; ) &#123; cout &lt;&lt; "Enter an integer: "; cin &gt;&gt; value; if ( cin.eof() || cin.bad() ) &#123; // 如果用户输入文件结束标志（或文件已被读完）， // 或者发生读写错误，则退出循环 // do something break; &#125; // 读到非法字符后，输入流将处于出错状态， // 为了继续获取输入，首先要调用 clear 函数 // 来清除输入流的错误标记，然后才能调用 // ignore 函数来清除输入流中的数据。 cin.clear(); // numeric_limits&lt;streamsize&gt;::max() 返回输入缓冲的大小。 // ignore 函数在此将把输入流中的数据清空。 // 这两个函数的具体用法请读者自行查询。 cin.ignore( numeric_limits&lt;streamsize&gt;::max(), '\n' ); cout &lt;&lt; value &lt;&lt; '\n'; &#125; return 0;&#125; 参考资料：ISO/IEC 9899:1999 (E) Programming languages— C 7.19.5.2 The fflush functionThe C Programming Language 2nd Edition By Kernighan &amp; RitchieISO/IEC 14882(1998-9-01)Programming languages — C++]]></content>
@@ -178,17 +189,6 @@
         <tag>C</tag>
         <tag>C++</tag>
         <tag>fflush</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title><![CDATA[灰度图像的腐蚀膨胀操作原理]]></title>
-    <url>%2F37744%2F</url>
-    <content type="text"><![CDATA[形态学操作一般是对二值图像的操作，但是在MATLAB中，灰度图像也有形态学处理。其原理为 结论：平坦的灰度膨胀是一个局部最大值算子。 结论：平坦的灰度腐蚀是一个局部最小值算子。]]></content>
-      <categories>
-        <category>网易博客</category>
-      </categories>
-      <tags>
-        <tag>网易</tag>
       </tags>
   </entry>
   <entry>
@@ -307,9 +307,9 @@
     <content type="text"><![CDATA[为了方便的获取微信群成员的信息，找到了一个很强大的python项目itchat，它将网页微信的各种操作都封装成了朴有天python类，简单的几行代码就能完成需求。项目主页。在这里记录我的操作过程 操作过程首先安装itchat 1pip install itchat 进入python环境，一步一步输入命令代码 123import itchat#登录网页微信，会弹出一个二维码，扫描一下itchat.auto_login() 成功扫描登陆后，python控制台会显示成功 然后就可以操作微信了 123456#获取所有的群roomslist = itchat.get_chatrooms()#通过群名称找到群 myroom=itchat.search_chatrooms(name=u'大侠群')#查看roomlist内容，找到群A的群号ID，一般为‘@@09if83xxx4c2c3850...’形式#获取群A的成员信息，返回一个包含信息的类mems=itchat.update_chatroom('ID', detailedMember=True) 1234567891011#使用json将mems转换为dictimport jsonmemstr=json.dumps(mems)memdict=json.loads(memstr)#取得dict里的listmemlist=memdict['MemberList']#遍历list，将需要的信息写入txtwith open('F:/A.csv','a',encoding='utf-8') as f: for mlist in memlist: strs=mlist['NickName']+','+mlist['DisplayName']+','+mlist['UserName']+','+str(mlist['Sex'])+','+mlist['City']+'\n' f.write(strs) 生成的txt文件可能会存在乱码的情况，一般用utf-8编码打开txt文件后，再转为ANSI编码保存一下就可以解决。如图 扩展itchat的功能很丰富，可以用来部署个人自动微信号（很多淘宝助手的个人微信号估计就是这么做的），可以用来远程控制物联网终端。 类似的项目也有很多 youfou/wxpy: 优秀的api包装和配套插件，微信机器人/优雅的微信个人号API liuwons/wxBot: 类似的基于Python的微信机器人 zixia/wechaty: 基于Javascript(ES6)的微信个人账号机器人NodeJS框架/库 sjdy521/Mojo-Weixin: 使用Perl语言编写的微信客户端框架，可通过插件提供基于HTTP协议的api接口供其他语言调用 HanSon/vbot: 基于PHP7的微信个人号机器人，通过实现匿名函数可以方便地实现各种自定义的功能]]></content>
       <tags>
         <tag>python</tag>
-        <tag>itchat</tag>
         <tag>微信</tag>
         <tag>wechat</tag>
+        <tag>itchat</tag>
         <tag>爬虫</tag>
       </tags>
   </entry>
@@ -318,8 +318,8 @@
     <url>%2F45450%2F</url>
     <content type="text"><![CDATA[上一篇体会到了itchat微信接口的强大与便捷，便想着做一个自动回复的微信，过程很简单，都是现成的接口，调用一下就可以了 整个调试过程也就半个小时，比较简单，直接上代码 1234567891011121314151617181920212223242526272829303132import itchatfrom itchat.content import *import requestsimport json@itchat.msg_register([TEXT,PICTURE,MAP,CARD,NOTE,SHARING])def text_reply(msg): if msg.type==TEXT: reply='hello' text=dict(text=msg.text) inputText=dict(inputText=text) userInfo=dict(apiKey='xxxxxxxxxxxd474eaxxxxx' ,userId='4xxxxxx') postjson=dict(perception=inputText,userInfo=userInfo) postjson=json.dumps(postjson) r = requests.post("http://openapi.tuling123.com/openapi/api/v2", data=postjson) print(r.text) res=r.json() rescode=res['intent']['code'] if rescode &gt;= 0: reply=res['results'][0]['values']['text'] else : if msg.text.find('吗') &gt; -1: reply=msg.text.split('吗')[0]+'!' else : reply=msg.text+'哟!' msg.user.send('%s' % (reply))itchat.auto_login()itchat.run(True) 具体就是要去图灵机器人注册一个账号，创建一个应用，得到apiKey和userID，然后就可以通过http post接口交换聊天信息了。 itchat注册消息到达函数，把朋友发来的消息交给图灵去处理，然后把图灵返回的消息发送给朋友。 效果如下： 另外，代码中还包含了价值一个亿的AI聊天机器人核心代码 更新 百度智能对话 接入百度在人工智能方面也是领头羊的地位，他的 UNIT智能对话平台 也是非常理想的聊天机器人 官网UNIT搭载业界领先的需求理解、对话控制及底层的自然语言处理、知识挖掘等核心技术让您的产品快速拥有对话交互能力， SDK文档UNIT机器人对话API文档 1234567891011121314151617181920212223def baiduAI(yousay): pass post_dict = dict(version='2.0', log_id='UNITTEST_10000') post_dict['service_id'] = 'S19668' post_dict['skill_id'] = '63755' post_dict['session_id'] = '' request_dict = dict(user_id='1111', query=yousay) post_dict['request'] = request_dict postjson = json.dumps(post_dict) r = requests.post( "https://aip.baidubce.com/rpc/2.0/unit/bot/chat?access_token=&#123;24.4d2xxxxxx.1564144088.282335-16652172&#125;", data=postjson) res = r.json() if res['error_code'] == 0: res_dict = dict( code=0, string=res['result']['response']['action_list'][0]['say']) # 返回权重最高的一句话 else: res_dict = dict(code=1, string='') return res_dict]]></content>
       <tags>
-        <tag>itchat</tag>
         <tag>微信</tag>
+        <tag>itchat</tag>
         <tag>图灵机器人</tag>
         <tag>聊天机器人</tag>
         <tag>百度聊天机器人</tag>
