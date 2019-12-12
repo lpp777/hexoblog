@@ -3,6 +3,13 @@
 
 
     <url>
+        <loc>http://www.pangpangda.cn/tags/hello-world/</loc>
+        <lastmod>2019-12-12T12:49:48.137Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
         <loc>http://www.pangpangda.cn/tags/AI/</loc>
         <lastmod>2019-12-02T09:30:00.041Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -31,14 +38,14 @@
     </url>
 
     <url>
-        <loc>http://www.pangpangda.cn/tags/itchat/</loc>
+        <loc>http://www.pangpangda.cn/tags/%E5%BE%AE%E4%BF%A1/</loc>
         <lastmod>2019-12-02T09:30:00.041Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
-        <loc>http://www.pangpangda.cn/tags/%E5%BE%AE%E4%BF%A1/</loc>
+        <loc>http://www.pangpangda.cn/tags/itchat/</loc>
         <lastmod>2019-12-02T09:30:00.041Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
@@ -381,6 +388,20 @@
     </url>
 
     <url>
+        <loc>http://www.pangpangda.cn/tags/%E5%86%85%E6%A0%B8/</loc>
+        <lastmod>2019-08-28T08:46:17.708Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>http://www.pangpangda.cn/tags/linux/</loc>
+        <lastmod>2019-08-28T08:46:17.708Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
         <loc>http://www.pangpangda.cn/tags/iot/</loc>
         <lastmod>2019-08-28T08:46:17.708Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -402,29 +423,8 @@
     </url>
 
     <url>
-        <loc>http://www.pangpangda.cn/tags/%E5%86%85%E6%A0%B8/</loc>
-        <lastmod>2019-08-28T08:46:17.708Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>http://www.pangpangda.cn/tags/linux/</loc>
-        <lastmod>2019-08-28T08:46:17.708Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
         <loc>http://www.pangpangda.cn/tags/mqtt/</loc>
         <lastmod>2019-08-28T08:46:17.708Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>http://www.pangpangda.cn/tags/hello-world/</loc>
-        <lastmod>2019-08-28T08:46:17.706Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
