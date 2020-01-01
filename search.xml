@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[Deepin系统下笔记本触摸板失灵的问题]]></title>
+    <url>%2F14977%2F</url>
+    <content type="text"><![CDATA[转到Linux下做一些项目，在笔记本上安装了国产的Deepin linux系统。该系统很漂亮，但是使用过程中发现触摸板工作不正常，经常失灵不工作。查找了一些解决方案，目前算是解决了。根据深度wiki的描述，一般是因为老版本内核没有最新硬件的驱动，所以需要更换一下最新的内核就可以。不同的Linux发行版使用的内核没什么大区别，因此Deepin Ubuntu Debian可以使用一样的内核。我们从(Ubuntu的内核库)[https://kernel.ubuntu.com/~kernel-ppa/mainline/]下载编译好的最新的内核，安装即可。 下载的时候注意区分不同的处理器架构，一般电脑都是64位系统了，所以要下载z这四个包 12345Build for amd64 succeeded (see BUILD.LOG.amd64): linux-headers-5.x_all.deb linux-headers-generic_5.x_amd64.deb linux-image-generic_5.x_amd64.deb linux-modules-generic_5.x_amd64.deb 安装方式： 可以直接双击deb包，调用gui的软件包管理器安装 用 sudo dpkg -i xxxx.deb 安装如果安装有依赖问题，就先安装其他的包。 再启动的时候选择最新的内核就可以了。新内核没有问题就可以卸载老内核了。 卸载方式：依次卸载相应的四个包使用命令 sudo apt remove linux-xxxxxxx Tips在内核仓库中可以看到有两种内核，一种generic,一种lowlatency。根据深度wiki的描述，lowlatency会降低性能。但是这个解释不够具体。 根据Ubuntu的解释：If you do not require low latency for your system then please use the -generic kernel.If you need a low latency system (e.g. for recording audio) then please use the -preempt kernel as a fist choice. This reduces latency but doesn’t sacrifice power saving features. It is available only for 64 bit systems (also called amd64).If the -preempt kernel does not provide enough low latency for your needs (or you have an 32 bit system) then you should try the -lowlatency kernel.If the -lowlatency kernel isn’t enough then you should try the -rt kernelIf the -rt kernel isn’t enough stable for you then you should try the -realtime kernel 大致就是说，lowlatency是一种类似软实时系统，在进程间切换的速度是实时的，低延时的。实时操作系统的缺点就是系统吞吐量减小，适合特定的应用场合。对于普通用户的桌面操作系统来说，generic是最好的。 更新我的神舟似乎用了新内核还是不能正常驱动触摸板，可能Elantech的板子比较独特吧。 用xinput查看(安装方法 apt install xinput) 123456789⎡ Virtual core pointer id=2 [master pointer (3)]⎜ ↳ Virtual core XTEST pointer id=4 [slave pointer (2)]⎜ ↳ Logitech G100s Optical Gaming Mouse id=9 [slave pointer (2)]⎣ Virtual core keyboard id=3 [master keyboard (2)] ↳ Virtual core XTEST keyboard id=5 [slave keyboard (3)] ↳ Power Button id=6 [slave keyboard (3)] ↳ Video Bus id=7 [slave keyboard (3)] ↳ Power Button id=8 [slave keyboard (3)] ↳ AT Translated Set 2 keyboard id=10 [slave keyboard (3)] 根本就没有发现触摸板硬件。难怪不能用呢。 不过，目前有一种解决方案，就是 先进入Windows系统，然后重启进入Linux系统，这样触摸板就能用了，而且功能和Windows下一样哟。 再用xinput查看 12345678910⎡ Virtual core pointer id=2 [master pointer (3)]⎜ ↳ Virtual core XTEST pointer id=4 [slave pointer (2)]⎜ ↳ ETPS/2 Elantech Touchpad id=11 [slave pointer (2)]⎜ ↳ Logitech G100s Optical Gaming Mouse id=9 [slave pointer (2)]⎣ Virtual core keyboard id=3 [master keyboard (2)] ↳ Virtual core XTEST keyboard id=5 [slave keyboard (3)] ↳ Power Button id=6 [slave keyboard (3)] ↳ Video Bus id=7 [slave keyboard (3)] ↳ Power Button id=8 [slave keyboard (3)] ↳ AT Translated Set 2 keyboard id=10 [slave keyboard (3)] Elantech Touchpad有了。 我判断是Elantech的触摸板配置信息直接写入了硬件里面，所以才会在Windows下和Linux下有一样的功能。 好软件推荐跨平台局域网文件互传神器 Dukto有windows、Linux、Mac、Android版本，只要在一个局域网，就可以任意互传。作者网站https://www.msec.it/blog/dukto/]]></content>
+      <tags>
+        <tag>deepin</tag>
+        <tag>linux</tag>
+        <tag>驱动</tag>
+        <tag>触摸板</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[欢迎新管理员]]></title>
     <url>%2F55061%2F</url>
     <content type="text"><![CDATA[这个网站新来的管理员有点凶🐻 具体怎么样子凶，参照下面 是不是不好惹。]]></content>
@@ -175,6 +186,17 @@
       </tags>
   </entry>
   <entry>
+    <title><![CDATA[灰度图像的腐蚀膨胀操作原理]]></title>
+    <url>%2F37744%2F</url>
+    <content type="text"><![CDATA[形态学操作一般是对二值图像的操作，但是在MATLAB中，灰度图像也有形态学处理。其原理为 结论：平坦的灰度膨胀是一个局部最大值算子。 结论：平坦的灰度腐蚀是一个局部最小值算子。]]></content>
+      <categories>
+        <category>网易博客</category>
+      </categories>
+      <tags>
+        <tag>网易</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[清空输入缓冲区]]></title>
     <url>%2F24236%2F</url>
     <content type="text"><![CDATA[1.为什么 fflush(stdin) 是错的？首先请看以下程序： 123456789101112#include &lt;stdio.h&gt;int main( void )&#123; int i; for (;;) &#123; fputs("Please input an integer: ", stdout); scanf("%d", &amp;i); printf("%d\n", i); &#125; return 0;&#125; ​ 这个程序首先会提示用户输入一个整数，然后等待用户输入，如果用户输入的是整数，程序会输出刚才输入的整数，并且再次提示用户输入一个整数，然后等待用户 输入。但是一旦用户输入的不是整数（如小数或者字母），假设 scanf 函数最后一次得到的整数是 2 ，那么程序会不停地输出“Please input an integer: 2”。这是因为 scanf(“%d”, &amp;i); 只能接受整数，如果用户输入了字母，则这个字母会遗留在“输入缓冲区”中。因为缓冲中有数据，故而 scanf 函数不会等待用户输入，直接就去缓冲中读取，可是缓冲中的却是字母，这个字母再次被遗留在缓冲中，如此反复，从而导致不停地输出“Please input an integer: 2”。 也许有人会说：“居然这样，那么在 scanf 函数后面加上‘fflush(stdin);’，把输入缓冲清空掉不就行了？”然而这是错的！ C和C++的标准里从来没有定义过 fflush(stdin)。​ 也许有人会说：“可是我用 fflush(stdin) 解决了这个问题，你怎么能说是错的呢？”​ 的确，某些编译器（如VC6）支持用 fflush(stdin) 来清空输入缓冲，但是并非所有编译器都要支持这个功能（linux 下的 gcc 就不支持），因为标准中根本没有定义 fflush(stdin)。MSDN 文档里 也清楚地写着fflush on input stream is an extension to the C standard（fflush 操作输入流是对 C 标准的扩充）。当然，如果你毫不在乎程序的移植性，用 fflush(stdin) 也没什么大问题。以下是 C99 对 fflush 函数的定义： int fflush(FILE *stream) ​ 如果 stream 指向输出流或者更新流（update stream），并且这个更新流最近执行的操作不是输入，​ 那么 fflush 函数将把这个流中任何待写数据传送至宿主环境（host environment）写入文件。否则，它的行为是未定义的。 原文如下： int fflush(FILE *stream);If stream points to an output stream or an update stream in which the most recent operation was not input, the fflush function causes any unwritten data for that stream to be delivered to the host environmentto be written to the file; otherwise, the behavior is undefined. 其中，宿主环境可以理解为操作系统或内核等。 由此可知，如果 stream 指向输入流（如 stdin），那么 fflush 函数的行为是不确定的。故而使用 fflush(stdin)是不正确的，至少是移植性不好的。 2.清空输入缓冲区的方法​ 虽然不可以用 fflush(stdin)，但是我们可以自己写代码来清空输入缓冲区。只需要在 scanf 函数后面加上几句简单的代码就可以了。 123456789101112131415161718192021222324252627/* C 版本 */#include &lt;stdio.h&gt;int main( void )&#123; int i, c; for ( ; ; ) &#123; fputs("Please input an integer: ", stdout); scanf("%d", &amp;i); if ( feof(stdin) || ferror(stdin) ) &#123; /* 如果用户输入文件结束标志（或文件已被读完）， */ /* 或者发生读写错误，则退出循环 */ /* do something */ break; &#125; /* 没有发生错误，清空输入流。 */ /* 通过 while 循环把输入流中的余留数据“吃”掉 */ while ( (c = getchar()) != '\n' &amp;&amp; c != EOF ) ; /* 使用 scanf("%*[^\n]"); 也可以清空输入流， */ /* 不过会残留 \n 字符。 */ printf("%d\n", i); &#125; return 0;&#125; 12345678910111213141516171819202122232425262728293031323334/* C++ 版本 */#include &lt;iostream&gt;#include &lt;limits&gt; // 为了使用numeric_limitsusing namespace std;int main()&#123; int value; for ( ; ; ) &#123; cout &lt;&lt; "Enter an integer: "; cin &gt;&gt; value; if ( cin.eof() || cin.bad() ) &#123; // 如果用户输入文件结束标志（或文件已被读完）， // 或者发生读写错误，则退出循环 // do something break; &#125; // 读到非法字符后，输入流将处于出错状态， // 为了继续获取输入，首先要调用 clear 函数 // 来清除输入流的错误标记，然后才能调用 // ignore 函数来清除输入流中的数据。 cin.clear(); // numeric_limits&lt;streamsize&gt;::max() 返回输入缓冲的大小。 // ignore 函数在此将把输入流中的数据清空。 // 这两个函数的具体用法请读者自行查询。 cin.ignore( numeric_limits&lt;streamsize&gt;::max(), '\n' ); cout &lt;&lt; value &lt;&lt; '\n'; &#125; return 0;&#125; 参考资料：ISO/IEC 9899:1999 (E) Programming languages— C 7.19.5.2 The fflush functionThe C Programming Language 2nd Edition By Kernighan &amp; RitchieISO/IEC 14882(1998-9-01)Programming languages — C++]]></content>
@@ -186,17 +208,6 @@
         <tag>C</tag>
         <tag>C++</tag>
         <tag>fflush</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title><![CDATA[灰度图像的腐蚀膨胀操作原理]]></title>
-    <url>%2F37744%2F</url>
-    <content type="text"><![CDATA[形态学操作一般是对二值图像的操作，但是在MATLAB中，灰度图像也有形态学处理。其原理为 结论：平坦的灰度膨胀是一个局部最大值算子。 结论：平坦的灰度腐蚀是一个局部最小值算子。]]></content>
-      <categories>
-        <category>网易博客</category>
-      </categories>
-      <tags>
-        <tag>网易</tag>
       </tags>
   </entry>
   <entry>
@@ -213,8 +224,8 @@
       </categories>
       <tags>
         <tag>网易</tag>
-        <tag>树莓派</tag>
         <tag>linux</tag>
+        <tag>树莓派</tag>
         <tag>内核</tag>
       </tags>
   </entry>
