@@ -112,23 +112,23 @@
 
 
 
-  <meta name="description" content="数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。 由于需要在Windows平台上给自主软件进行签名，遍查阅资料，主要借鉴了 https://www.cnblogs.com/aiqingqing/p/4503051.html 和 https://www.cnblogs.com/dgjnszf/p/12332498.html 两篇博文，成功完成签名。 本文记录一下签名的">
+  <meta name="description" content="数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。 由于需要在Windows平台上给自主软件进行签名，查阅资料，主要借鉴了 makecert 制作数字证书 和 使用SignTool.exe对文件进行数字签名两篇博文，成功完成签名。 本文记录一下签名的过程。">
 <meta name="keywords" content="数字签名,代码签名,signtool">
 <meta property="og:type" content="article">
 <meta property="og:title" content="给软件加上数字签名">
 <meta property="og:url" content="http://www.pangpangda.cn/5074/index.html">
 <meta property="og:site_name" content="胖胖哒">
-<meta property="og:description" content="数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。 由于需要在Windows平台上给自主软件进行签名，遍查阅资料，主要借鉴了 https://www.cnblogs.com/aiqingqing/p/4503051.html 和 https://www.cnblogs.com/dgjnszf/p/12332498.html 两篇博文，成功完成签名。 本文记录一下签名的">
+<meta property="og:description" content="数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。 由于需要在Windows平台上给自主软件进行签名，查阅资料，主要借鉴了 makecert 制作数字证书 和 使用SignTool.exe对文件进行数字签名两篇博文，成功完成签名。 本文记录一下签名的过程。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.pangpangda.cn/5074/page.jpg">
 <meta property="og:image" content="http://www.pangpangda.cn/5074/exe.jpg">
 <meta property="og:image" content="http://www.pangpangda.cn/5074/demo.jpg">
 <meta property="og:image" content="http://www.pangpangda.cn/5074/before.jpg">
 <meta property="og:image" content="http://www.pangpangda.cn/5074/after.jpg">
-<meta property="og:updated_time" content="2020-09-17T09:16:49.102Z">
+<meta property="og:updated_time" content="2020-09-17T10:04:41.105Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="给软件加上数字签名">
-<meta name="twitter:description" content="数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。 由于需要在Windows平台上给自主软件进行签名，遍查阅资料，主要借鉴了 https://www.cnblogs.com/aiqingqing/p/4503051.html 和 https://www.cnblogs.com/dgjnszf/p/12332498.html 两篇博文，成功完成签名。 本文记录一下签名的">
+<meta name="twitter:description" content="数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。 由于需要在Windows平台上给自主软件进行签名，查阅资料，主要借鉴了 makecert 制作数字证书 和 使用SignTool.exe对文件进行数字签名两篇博文，成功完成签名。 本文记录一下签名的过程。">
 <meta name="twitter:image" content="http://www.pangpangda.cn/5074/page.jpg">
 
 
@@ -456,34 +456,29 @@
       
         <img src="/5074/page.jpg">
 <p>数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。</p>
-<p>由于需要在Windows平台上给自主软件进行签名，遍查阅资料，主要借鉴了 <span class="exturl" data-url="aHR0cHM6Ly93d3cuY25ibG9ncy5jb20vYWlxaW5ncWluZy9wLzQ1MDMwNTEuaHRtbA==" title="https://www.cnblogs.com/aiqingqing/p/4503051.html">https://www.cnblogs.com/aiqingqing/p/4503051.html<i class="fa fa-external-link"></i></span> 和 <span class="exturl" data-url="aHR0cHM6Ly93d3cuY25ibG9ncy5jb20vZGdqbnN6Zi9wLzEyMzMyNDk4Lmh0bWw=" title="https://www.cnblogs.com/dgjnszf/p/12332498.html">https://www.cnblogs.com/dgjnszf/p/12332498.html<i class="fa fa-external-link"></i></span> 两篇博文，成功完成签名。</p>
+<p>由于需要在Windows平台上给自主软件进行签名，查阅资料，主要借鉴了 <span class="exturl" data-url="aHR0cHM6Ly93d3cuY25ibG9ncy5jb20vYWlxaW5ncWluZy9wLzQ1MDMwNTEuaHRtbA==" title="https://www.cnblogs.com/aiqingqing/p/4503051.html">makecert 制作数字证书<i class="fa fa-external-link"></i></span> 和 <span class="exturl" data-url="aHR0cHM6Ly93d3cuY25ibG9ncy5jb20vZGdqbnN6Zi9wLzEyMzMyNDk4Lmh0bWw=" title="https://www.cnblogs.com/dgjnszf/p/12332498.html">使用SignTool.exe对文件进行数字签名<i class="fa fa-external-link"></i></span>两篇博文，成功完成签名。</p>
 <p>本文记录一下签名的过程。</p>
 <a id="more"></a>
 <p>在Windows下微软提供了一套完整的数字签名套件，一般包含在Windows SDK中，可参考 <span class="exturl" data-url="aHR0cHM6Ly9kb2NzLm1pY3Jvc29mdC5jb20vemgtY24vd2luZG93cy1oYXJkd2FyZS9kcml2ZXJzL2RldnRlc3QvdG9vbHMtZm9yLXNpZ25pbmctZHJpdmVycw==" title="https://docs.microsoft.com/zh-cn/windows-hardware/drivers/devtest/tools-for-signing-drivers">https://docs.microsoft.com/zh-cn/windows-hardware/drivers/devtest/tools-for-signing-drivers<i class="fa fa-external-link"></i></span> 。<img src="/5074/exe.jpg"></p>
 <p>主要用到了四个工具：<code>makecert.exe</code>、<code>cert2spc.exe</code>、<code>pvk2pfx.exe</code> 和 <code>signtool.exe</code>。Windows SDK太大，也可以去网上下载单独的exe程序和相应的dll库。</p>
 <p>主要步骤：</p>
 <h2 id="1-自制数字证书"><a href="#1-自制数字证书" class="headerlink" title="1.自制数字证书"></a>1.自制数字证书</h2><p>用于代码签名的数字证书目前没有免费的，有能力的可以去购买。做实验的话，就自己生成一份自签名证书就OK了。signtool签名工具需要pfx格式的证书，因此下面主要是制作一个pfx的证书。Windows SDK内的四个exe都是命令行形式的，看一下帮助信息也不太难。</p>
-<ol>
-<li>首先制作一份通用的自签名证书cer。用makecert，中间会要求输入密码，假设为123<br><code>makecert.exe  -r  -n &quot;CN=宇宙香烟厂&quot;  -sv path/yuzhou.pvk path/yuzhou.cer</code></li>
-</ol>
+<p>(1)  首先制作一份通用的自签名证书cer。用makecert，中间会要求输入密码，假设为123<br>   <code>makecert.exe  -r  -n &quot;CN=宇宙香烟厂&quot;  -sv path/yuzhou.pvk path/yuzhou.cer</code></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">MakeCert用于创建x.509标准的证书。命令格式</span><br><span class="line">MakeCert [/b DateStart] [/e DateEnd] [/len KeyLength] [/m nMonths] [/n &quot;Name&quot;] [/pe] [/r] [/sc SubjectCertFile] [/sk SubjectKey] [/sr SubjectCertStoreLocation] [/ss SubjectCertStoreName] [/sv SubjectKeyFile] OutputFile</span><br><span class="line"></span><br><span class="line">   -r 表示自签名</span><br><span class="line">   -n 表示证书名称</span><br><span class="line">   -sv 表示指定保存私钥pvk文件的名称</span><br><span class="line">    OutputFile 生成的cer证书的文件的名称</span><br><span class="line">    </span><br><span class="line">   其中证书名称符合X.500标准 [参考1](https://zhuanlan.zhihu.com/p/165306642) [参考2](https://tools.ietf.org/rfc/rfc5280.txt)，常用的有</span><br><span class="line">           国家（countryName，C），</span><br><span class="line">           组织（organizationName，O），</span><br><span class="line">           组织单位（organizationalUnitName，OU），</span><br><span class="line">           专有名称限定符（dnQualifier），</span><br><span class="line">           州或省名（stateOrProvinceName，ST），</span><br><span class="line">           通用名称（commonName，CN</span><br></pre></td></tr></table></figure>
 <p>这样就得到了通用证书文件<code>yuzhou.cer</code>和对应的私钥文件<code>yuzhou.pvk</code></p>
-<ol>
-<li><p>将cer证书转换为SPC发布者证书<br><code>cert2spc.exe  path/yuzhou.cer  path/yuzhou.spc</code><br>这样就得到了发布者证书<code>yuzhou.spc</code></p>
-</li>
-<li><p>将公钥(SPC)和私钥合并为一个windows格式的包含私钥的证书pfx<br><code>pvk2pfx.exe  -pvk path/yuzhou.pvk  -spc path/yuzhou.spc  -pi 123  -pfx path/yuzhou.pfx</code></p>
-</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Pvk2Pfx将.spc、.cer和.pvk 文件中包含的公钥和私钥信息复制到个人信息交换文件.pfx中。命令格式</span><br><span class="line">pvk2pfx /pvk pvkfilename.pvk [/pi pvkpassword] /spc spcfilename.ext [/pfx pfxfilename.pfx [/po pfxpassword] ]</span><br><span class="line"></span><br><span class="line">    -pfx 表示生成的pfx文件名</span><br><span class="line">    -po 表示pfx的加密密码，如果忽略，则使用原来pvk私钥的密码(-pi)</span><br></pre></td></tr></table></figure>
+<p>(2)  将cer证书转换为SPC发布者证书<br>   <code>cert2spc.exe  path/yuzhou.cer  path/yuzhou.spc</code><br>这样就得到了发布者证书<code>yuzhou.spc</code></p>
+<p>(3)  将公钥(SPC)和私钥合并为一个windows格式的包含私钥的证书pfx<br>   <code>pvk2pfx.exe  -pvk path/yuzhou.pvk  -spc path/yuzhou.spc  -pi 123  -pfx path/yuzhou.pfx</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Pvk2Pfx将.spc、.cer和.pvk 文件中包含的公钥和私钥信息复制到个人信息交换文件.pfx中。命令格式</span><br><span class="line">pvk2pfx /pvk pvkfilename.pvk [/pi pvkpassword] /spc spcfilename.ext [/pfx pfxfilename.pfx [/po pfxpassword] ]</span><br><span class="line"></span><br><span class="line">    -pfx 表示生成的pfx文件名</span><br><span class="line">    -po 表示pfx的加密密码，如果忽略，则使用原来pvk私钥的密码(-pi)</span><br></pre></td></tr></table></figure></p>
 <p>也可以省去第2步，直接用pvk和cer生成pfx。只要把-spc的输入换为cer文件即可<br><code>pvk2pfx.exe  -pvk path/yuzhou.pvk  -spc path/yuzhou.cer  -pi 123  -pfx path/yuzhou.pfx</code></p>
 <p>这样一份用于代码签名的数字证书<code>yuzhou.pfx</code>就做好了</p>
 <h2 id="2-用数字证书签名并打上时间戳"><a href="#2-用数字证书签名并打上时间戳" class="headerlink" title="2.用数字证书签名并打上时间戳"></a>2.用数字证书签名并打上时间戳</h2><p>SignTool用于对文件进行数字签名，验证文件中的签名和时间戳文件。<br><code>signtool.exe sign -f path/yuzhou.pfx -p 123 /t http://timestamp.digicert.com  path/bin.exe</code></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/f 指定PFX文件</span><br><span class="line">/P 指定打开PFX文件时要使用的密码</span><br><span class="line">/T 指定时间戳服务器的 URL。 如果未提供此选项，则签名文件不是时间戳。</span><br></pre></td></tr></table></figure>
 <p>这样文件就被证书签名并打上了时间戳。别人想假冒你也假冒不了了。</p>
-<p>demo文件<br><img src="/5074/demo.jpg"></p>
+<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p>demo文件<br><img src="/5074/demo.jpg"></p>
 <p>没有签名之前<br><img src="/5074/before.jpg"></p>
 <p>签名之后<br><img src="/5074/after.jpg"></p>
-<h1 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h1>
+<p>可以看到</p>
+<h1 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h1><h4 id="走过的坑：沃通有一个签名工具-wosigncode-exe-，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。"><a href="#走过的坑：沃通有一个签名工具-wosigncode-exe-，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。" class="headerlink" title="走过的坑：沃通有一个签名工具 wosigncode.exe ，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。"></a>走过的坑：沃通有一个签名工具 wosigncode.exe ，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。</h4><p>X509是公钥证书的标准格式。</p>
+
       
     </div>
 
@@ -908,7 +903,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-自制数字证书"><span class="nav-number">1.</span> <span class="nav-text">1.自制数字证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-用数字证书签名并打上时间戳"><span class="nav-number">2.</span> <span class="nav-text">2.用数字证书签名并打上时间戳</span></a></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展"><span class="nav-number"></span> <span class="nav-text">扩展</span></a></li></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-自制数字证书"><span class="nav-number">1.</span> <span class="nav-text">1.自制数字证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-用数字证书签名并打上时间戳"><span class="nav-number">2.</span> <span class="nav-text">2.用数字证书签名并打上时间戳</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#效果"><span class="nav-number">3.</span> <span class="nav-text">效果</span></a></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展"><span class="nav-number"></span> <span class="nav-text">扩展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#走过的坑：沃通有一个签名工具-wosigncode-exe-，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。"><span class="nav-number">0.0.1.</span> <span class="nav-text">走过的坑：沃通有一个签名工具 wosigncode.exe ，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。</span></a></li></ol></li></div>
             
 
           </div>

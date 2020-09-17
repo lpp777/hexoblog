@@ -3,7 +3,7 @@
   <entry>
     <title><![CDATA[给软件加上数字签名]]></title>
     <url>%2F5074%2F</url>
-    <content type="text"><![CDATA[数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。 由于需要在Windows平台上给自主软件进行签名，遍查阅资料，主要借鉴了 https://www.cnblogs.com/aiqingqing/p/4503051.html 和 https://www.cnblogs.com/dgjnszf/p/12332498.html 两篇博文，成功完成签名。 本文记录一下签名的过程。 在Windows下微软提供了一套完整的数字签名套件，一般包含在Windows SDK中，可参考 https://docs.microsoft.com/zh-cn/windows-hardware/drivers/devtest/tools-for-signing-drivers 。 主要用到了四个工具：makecert.exe、cert2spc.exe、pvk2pfx.exe 和 signtool.exe。Windows SDK太大，也可以去网上下载单独的exe程序和相应的dll库。 主要步骤： 1.自制数字证书用于代码签名的数字证书目前没有免费的，有能力的可以去购买。做实验的话，就自己生成一份自签名证书就OK了。signtool签名工具需要pfx格式的证书，因此下面主要是制作一个pfx的证书。Windows SDK内的四个exe都是命令行形式的，看一下帮助信息也不太难。 首先制作一份通用的自签名证书cer。用makecert，中间会要求输入密码，假设为123makecert.exe -r -n &quot;CN=宇宙香烟厂&quot; -sv path/yuzhou.pvk path/yuzhou.cer 123456789101112131415MakeCert用于创建x.509标准的证书。命令格式MakeCert [/b DateStart] [/e DateEnd] [/len KeyLength] [/m nMonths] [/n &quot;Name&quot;] [/pe] [/r] [/sc SubjectCertFile] [/sk SubjectKey] [/sr SubjectCertStoreLocation] [/ss SubjectCertStoreName] [/sv SubjectKeyFile] OutputFile -r 表示自签名 -n 表示证书名称 -sv 表示指定保存私钥pvk文件的名称 OutputFile 生成的cer证书的文件的名称 其中证书名称符合X.500标准 [参考1](https://zhuanlan.zhihu.com/p/165306642) [参考2](https://tools.ietf.org/rfc/rfc5280.txt)，常用的有 国家（countryName，C）， 组织（organizationName，O）， 组织单位（organizationalUnitName，OU）， 专有名称限定符（dnQualifier）， 州或省名（stateOrProvinceName，ST）， 通用名称（commonName，CN 这样就得到了通用证书文件yuzhou.cer和对应的私钥文件yuzhou.pvk 将cer证书转换为SPC发布者证书cert2spc.exe path/yuzhou.cer path/yuzhou.spc这样就得到了发布者证书yuzhou.spc 将公钥(SPC)和私钥合并为一个windows格式的包含私钥的证书pfxpvk2pfx.exe -pvk path/yuzhou.pvk -spc path/yuzhou.spc -pi 123 -pfx path/yuzhou.pfx 12345Pvk2Pfx将.spc、.cer和.pvk 文件中包含的公钥和私钥信息复制到个人信息交换文件.pfx中。命令格式pvk2pfx /pvk pvkfilename.pvk [/pi pvkpassword] /spc spcfilename.ext [/pfx pfxfilename.pfx [/po pfxpassword] ] -pfx 表示生成的pfx文件名 -po 表示pfx的加密密码，如果忽略，则使用原来pvk私钥的密码(-pi) 也可以省去第2步，直接用pvk和cer生成pfx。只要把-spc的输入换为cer文件即可pvk2pfx.exe -pvk path/yuzhou.pvk -spc path/yuzhou.cer -pi 123 -pfx path/yuzhou.pfx 这样一份用于代码签名的数字证书yuzhou.pfx就做好了 2.用数字证书签名并打上时间戳SignTool用于对文件进行数字签名，验证文件中的签名和时间戳文件。signtool.exe sign -f path/yuzhou.pfx -p 123 /t http://timestamp.digicert.com path/bin.exe 123/f 指定PFX文件/P 指定打开PFX文件时要使用的密码/T 指定时间戳服务器的 URL。 如果未提供此选项，则签名文件不是时间戳。 这样文件就被证书签名并打上了时间戳。别人想假冒你也假冒不了了。 demo文件 没有签名之前 签名之后 扩展]]></content>
+    <content type="text"><![CDATA[数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。 由于需要在Windows平台上给自主软件进行签名，查阅资料，主要借鉴了 makecert 制作数字证书 和 使用SignTool.exe对文件进行数字签名两篇博文，成功完成签名。 本文记录一下签名的过程。 在Windows下微软提供了一套完整的数字签名套件，一般包含在Windows SDK中，可参考 https://docs.microsoft.com/zh-cn/windows-hardware/drivers/devtest/tools-for-signing-drivers 。 主要用到了四个工具：makecert.exe、cert2spc.exe、pvk2pfx.exe 和 signtool.exe。Windows SDK太大，也可以去网上下载单独的exe程序和相应的dll库。 主要步骤： 1.自制数字证书用于代码签名的数字证书目前没有免费的，有能力的可以去购买。做实验的话，就自己生成一份自签名证书就OK了。signtool签名工具需要pfx格式的证书，因此下面主要是制作一个pfx的证书。Windows SDK内的四个exe都是命令行形式的，看一下帮助信息也不太难。 (1) 首先制作一份通用的自签名证书cer。用makecert，中间会要求输入密码，假设为123 makecert.exe -r -n &quot;CN=宇宙香烟厂&quot; -sv path/yuzhou.pvk path/yuzhou.cer 123456789101112131415MakeCert用于创建x.509标准的证书。命令格式MakeCert [/b DateStart] [/e DateEnd] [/len KeyLength] [/m nMonths] [/n &quot;Name&quot;] [/pe] [/r] [/sc SubjectCertFile] [/sk SubjectKey] [/sr SubjectCertStoreLocation] [/ss SubjectCertStoreName] [/sv SubjectKeyFile] OutputFile -r 表示自签名 -n 表示证书名称 -sv 表示指定保存私钥pvk文件的名称 OutputFile 生成的cer证书的文件的名称 其中证书名称符合X.500标准 [参考1](https://zhuanlan.zhihu.com/p/165306642) [参考2](https://tools.ietf.org/rfc/rfc5280.txt)，常用的有 国家（countryName，C）， 组织（organizationName，O）， 组织单位（organizationalUnitName，OU）， 专有名称限定符（dnQualifier）， 州或省名（stateOrProvinceName，ST）， 通用名称（commonName，CN 这样就得到了通用证书文件yuzhou.cer和对应的私钥文件yuzhou.pvk (2) 将cer证书转换为SPC发布者证书 cert2spc.exe path/yuzhou.cer path/yuzhou.spc这样就得到了发布者证书yuzhou.spc (3) 将公钥(SPC)和私钥合并为一个windows格式的包含私钥的证书pfx pvk2pfx.exe -pvk path/yuzhou.pvk -spc path/yuzhou.spc -pi 123 -pfx path/yuzhou.pfx12345Pvk2Pfx将.spc、.cer和.pvk 文件中包含的公钥和私钥信息复制到个人信息交换文件.pfx中。命令格式pvk2pfx /pvk pvkfilename.pvk [/pi pvkpassword] /spc spcfilename.ext [/pfx pfxfilename.pfx [/po pfxpassword] ] -pfx 表示生成的pfx文件名 -po 表示pfx的加密密码，如果忽略，则使用原来pvk私钥的密码(-pi) 也可以省去第2步，直接用pvk和cer生成pfx。只要把-spc的输入换为cer文件即可pvk2pfx.exe -pvk path/yuzhou.pvk -spc path/yuzhou.cer -pi 123 -pfx path/yuzhou.pfx 这样一份用于代码签名的数字证书yuzhou.pfx就做好了 2.用数字证书签名并打上时间戳SignTool用于对文件进行数字签名，验证文件中的签名和时间戳文件。signtool.exe sign -f path/yuzhou.pfx -p 123 /t http://timestamp.digicert.com path/bin.exe 123/f 指定PFX文件/P 指定打开PFX文件时要使用的密码/T 指定时间戳服务器的 URL。 如果未提供此选项，则签名文件不是时间戳。 这样文件就被证书签名并打上了时间戳。别人想假冒你也假冒不了了。 效果demo文件 没有签名之前 签名之后 可以看到 扩展走过的坑：沃通有一个签名工具 wosigncode.exe ，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。X509是公钥证书的标准格式。]]></content>
       <tags>
         <tag>数字签名</tag>
         <tag>代码签名</tag>
@@ -206,17 +206,6 @@
       </tags>
   </entry>
   <entry>
-    <title><![CDATA[灰度图像的腐蚀膨胀操作原理]]></title>
-    <url>%2F37744%2F</url>
-    <content type="text"><![CDATA[形态学操作一般是对二值图像的操作，但是在MATLAB中，灰度图像也有形态学处理。其原理为 结论：平坦的灰度膨胀是一个局部最大值算子。 结论：平坦的灰度腐蚀是一个局部最小值算子。]]></content>
-      <categories>
-        <category>网易博客</category>
-      </categories>
-      <tags>
-        <tag>网易</tag>
-      </tags>
-  </entry>
-  <entry>
     <title><![CDATA[清空输入缓冲区]]></title>
     <url>%2F24236%2F</url>
     <content type="text"><![CDATA[1.为什么 fflush(stdin) 是错的？首先请看以下程序： 123456789101112#include &lt;stdio.h&gt;int main( void )&#123; int i; for (;;) &#123; fputs("Please input an integer: ", stdout); scanf("%d", &amp;i); printf("%d\n", i); &#125; return 0;&#125; ​ 这个程序首先会提示用户输入一个整数，然后等待用户输入，如果用户输入的是整数，程序会输出刚才输入的整数，并且再次提示用户输入一个整数，然后等待用户 输入。但是一旦用户输入的不是整数（如小数或者字母），假设 scanf 函数最后一次得到的整数是 2 ，那么程序会不停地输出“Please input an integer: 2”。这是因为 scanf(“%d”, &amp;i); 只能接受整数，如果用户输入了字母，则这个字母会遗留在“输入缓冲区”中。因为缓冲中有数据，故而 scanf 函数不会等待用户输入，直接就去缓冲中读取，可是缓冲中的却是字母，这个字母再次被遗留在缓冲中，如此反复，从而导致不停地输出“Please input an integer: 2”。 也许有人会说：“居然这样，那么在 scanf 函数后面加上‘fflush(stdin);’，把输入缓冲清空掉不就行了？”然而这是错的！ C和C++的标准里从来没有定义过 fflush(stdin)。​ 也许有人会说：“可是我用 fflush(stdin) 解决了这个问题，你怎么能说是错的呢？”​ 的确，某些编译器（如VC6）支持用 fflush(stdin) 来清空输入缓冲，但是并非所有编译器都要支持这个功能（linux 下的 gcc 就不支持），因为标准中根本没有定义 fflush(stdin)。MSDN 文档里 也清楚地写着fflush on input stream is an extension to the C standard（fflush 操作输入流是对 C 标准的扩充）。当然，如果你毫不在乎程序的移植性，用 fflush(stdin) 也没什么大问题。以下是 C99 对 fflush 函数的定义： int fflush(FILE *stream) ​ 如果 stream 指向输出流或者更新流（update stream），并且这个更新流最近执行的操作不是输入，​ 那么 fflush 函数将把这个流中任何待写数据传送至宿主环境（host environment）写入文件。否则，它的行为是未定义的。 原文如下： int fflush(FILE *stream);If stream points to an output stream or an update stream in which the most recent operation was not input, the fflush function causes any unwritten data for that stream to be delivered to the host environmentto be written to the file; otherwise, the behavior is undefined. 其中，宿主环境可以理解为操作系统或内核等。 由此可知，如果 stream 指向输入流（如 stdin），那么 fflush 函数的行为是不确定的。故而使用 fflush(stdin)是不正确的，至少是移植性不好的。 2.清空输入缓冲区的方法​ 虽然不可以用 fflush(stdin)，但是我们可以自己写代码来清空输入缓冲区。只需要在 scanf 函数后面加上几句简单的代码就可以了。 123456789101112131415161718192021222324252627/* C 版本 */#include &lt;stdio.h&gt;int main( void )&#123; int i, c; for ( ; ; ) &#123; fputs("Please input an integer: ", stdout); scanf("%d", &amp;i); if ( feof(stdin) || ferror(stdin) ) &#123; /* 如果用户输入文件结束标志（或文件已被读完）， */ /* 或者发生读写错误，则退出循环 */ /* do something */ break; &#125; /* 没有发生错误，清空输入流。 */ /* 通过 while 循环把输入流中的余留数据“吃”掉 */ while ( (c = getchar()) != '\n' &amp;&amp; c != EOF ) ; /* 使用 scanf("%*[^\n]"); 也可以清空输入流， */ /* 不过会残留 \n 字符。 */ printf("%d\n", i); &#125; return 0;&#125; 12345678910111213141516171819202122232425262728293031323334/* C++ 版本 */#include &lt;iostream&gt;#include &lt;limits&gt; // 为了使用numeric_limitsusing namespace std;int main()&#123; int value; for ( ; ; ) &#123; cout &lt;&lt; "Enter an integer: "; cin &gt;&gt; value; if ( cin.eof() || cin.bad() ) &#123; // 如果用户输入文件结束标志（或文件已被读完）， // 或者发生读写错误，则退出循环 // do something break; &#125; // 读到非法字符后，输入流将处于出错状态， // 为了继续获取输入，首先要调用 clear 函数 // 来清除输入流的错误标记，然后才能调用 // ignore 函数来清除输入流中的数据。 cin.clear(); // numeric_limits&lt;streamsize&gt;::max() 返回输入缓冲的大小。 // ignore 函数在此将把输入流中的数据清空。 // 这两个函数的具体用法请读者自行查询。 cin.ignore( numeric_limits&lt;streamsize&gt;::max(), '\n' ); cout &lt;&lt; value &lt;&lt; '\n'; &#125; return 0;&#125; 参考资料：ISO/IEC 9899:1999 (E) Programming languages— C 7.19.5.2 The fflush functionThe C Programming Language 2nd Edition By Kernighan &amp; RitchieISO/IEC 14882(1998-9-01)Programming languages — C++]]></content>
@@ -228,6 +217,17 @@
         <tag>C</tag>
         <tag>C++</tag>
         <tag>fflush</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[灰度图像的腐蚀膨胀操作原理]]></title>
+    <url>%2F37744%2F</url>
+    <content type="text"><![CDATA[形态学操作一般是对二值图像的操作，但是在MATLAB中，灰度图像也有形态学处理。其原理为 结论：平坦的灰度膨胀是一个局部最大值算子。 结论：平坦的灰度腐蚀是一个局部最小值算子。]]></content>
+      <categories>
+        <category>网易博客</category>
+      </categories>
+      <tags>
+        <tag>网易</tag>
       </tags>
   </entry>
   <entry>
