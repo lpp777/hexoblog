@@ -125,7 +125,7 @@
 <meta property="og:image" content="http://www.pangpangda.cn/5074/demo.jpg">
 <meta property="og:image" content="http://www.pangpangda.cn/5074/before.jpg">
 <meta property="og:image" content="http://www.pangpangda.cn/5074/after.jpg">
-<meta property="og:updated_time" content="2020-09-17T10:04:41.105Z">
+<meta property="og:updated_time" content="2020-09-17T14:04:38.591Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="给软件加上数字签名">
 <meta name="twitter:description" content="数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。 由于需要在Windows平台上给自主软件进行签名，查阅资料，主要借鉴了 makecert 制作数字证书 和 使用SignTool.exe对文件进行数字签名两篇博文，成功完成签名。 本文记录一下签名的过程。">
@@ -477,7 +477,28 @@
 <p>没有签名之前<br><img src="/5074/before.jpg"></p>
 <p>签名之后<br><img src="/5074/after.jpg"></p>
 <p>可以看到</p>
-<h1 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h1><h4 id="走过的坑：沃通有一个签名工具-wosigncode-exe-，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。"><a href="#走过的坑：沃通有一个签名工具-wosigncode-exe-，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。" class="headerlink" title="走过的坑：沃通有一个签名工具 wosigncode.exe ，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。"></a>走过的坑：沃通有一个签名工具 wosigncode.exe ，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。</h4><p>X509是公钥证书的标准格式。</p>
+<h1 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h1><h4 id="走过的坑：沃通有一个签名工具-wosigncode-exe-，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。"><a href="#走过的坑：沃通有一个签名工具-wosigncode-exe-，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。" class="headerlink" title="走过的坑：沃通有一个签名工具 wosigncode.exe ，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。"></a>走过的坑：沃通有一个签名工具 wosigncode.exe ，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。</h4><h2 id="加密-和-签名"><a href="#加密-和-签名" class="headerlink" title="加密 和 签名"></a>加密 和 签名</h2><p>加密：通过一种算法将一个数变成另一个数，目的是为了原数据的保密，使其在没有密码的情况下无法得知原文内容；</p>
+<p>签名：通常伴随着摘要提取算法（比如md5、sha1、sha2等哈希算法），所有者A对全文或摘要用私钥进行加密，并把加密后的信息和原文一起发送给目标B。目的是保证原文的完整性、防纂改。因为原文一旦有变化，md5值就会有明显的变化，通过比对A发来的解密后的摘要和B自己对原文生成的摘要就能知道原文有没有改变。同时B只能用A的公钥才能解密出A发来的加密摘要，保证了来源的真实性，防止纂改。</p>
+<p>比较可知，加密和签名是不同的操作，有不同的目的。加密就是防止原文被偷窥；签名也用到了加密，但目的不是防止原文被偷窥，而是防止原文被纂改。</p>
+<h2 id="公钥-和-私钥"><a href="#公钥-和-私钥" class="headerlink" title="公钥 和 私钥"></a>公钥 和 私钥</h2><p>X509是公钥证书的标准格式。公钥证书是非对称加密的一种方式，即加密解密用不同的密码。非对称机密算法主要使用RSA算法，即生成公钥和私钥一对密码，公钥和私钥一一对应；用公钥加密的数据只能用对应的私钥解密，同样，用私钥加密的数据也只能用对应的公钥。</p>
+<p>对称加密（比如AES）就是加密解密都用同一个密码。</p>
+<h2 id="SSL证书-和-代码签名证书"><a href="#SSL证书-和-代码签名证书" class="headerlink" title="SSL证书 和 代码签名证书"></a>SSL证书 和 代码签名证书</h2><p><strong>SSL证书</strong></p>
+<p>在HTTPS通信中的SSL协议，就是使用了RSA非对称加密算法。服务器端的公钥和网站证书是公开的，任何人都可以获取，但是服务器的私钥是保密的，放在安全的地方。</p>
+<p>虽然SSL通信的基础是RSA非对称加密算法，但是在建立通信后却不用RSA算法了。一是因为RSA算法的计算量大，速度慢；二是因为公钥是公开的，私钥是服务器保密的，这样就只能由用户向服务器发送保密数据，而服务器不能向用户发送保密数据，因为用户用公钥加密数据后，只能用服务器的私钥解密，而私钥只有服务器拥有，数据是安全的；而服务器用私钥加密的数据，能够被所有拥有公钥的人解密，而公钥任何人都能获取，数据等于没有加密。所以SSL中是非对称加密、对称加密、密钥交换算法等一系列算法的共同参与。</p>
+<p>简单说明HTTPS通信的过程：</p>
+<p>1.当浏览器访问网站时，首先下载网站的公钥和证书，通过CA机构验证证书确实属于该网站后才进行后续的数据通信；并确定加密套件</p>
+<p>2.浏览器向服务器发送一个随机数cr</p>
+<p>3.服务器也生成一个随机数sr，并生成DH算法的交换参数sdh，然后将cr、sr、sdh一起用私钥签名后发送给浏览器</p>
+<p>4.浏览器用公钥验证cr、sr、sdh的真实性，如果cr没有篡改则表明通信安全。然后也生成自己的DH算法的交换参数cdh，并用公钥加密后（也可以不加密）发送给服务器</p>
+<p>5.服务器和浏览器都用cdh和sdh生成DH算法最后的密钥ps，DH算法的特性保证了两端能够生成相同的密钥ps，这个密钥只有通信双方知道，其他人是无法获得的，也无法通过前面的cr、sr、sdh、cdh等参数计算出来</p>
+<p>6.服务器和浏览器将cr、sr、ps合在一起用加密套件确定的算法（一般为伪随机函数）生成相同的密码key，作为对称加密的密码。这个密码同样也只有双方知道，其他人也无法计算出来</p>
+<p>7.随后的数据，双方都用对称加密算法的key加密解密数据。</p>
+<p><strong>代码签名证书</strong></p>
+<p>代码签名是对可执行文件或脚本进行数字签名以确认软件作者及保证软件在签名后未被修改或损坏的措施。此措施使用加密散列来验证真实性和完整性。</p>
+<p>作者用自己的证书私钥加密文件的摘要作为签名，然后将签名集成到文件中。也可以打上时间戳，证明文件发布的时间。</p>
+<p>用户下载该文件后，可以查看文件的签名，用作者的公钥解密出摘要。如果文件被篡改了，则摘要将不一样，表明文件有问题了。</p>
+<p>因为私钥加密后的数据，拥有公钥只能查看，不能更改，这也就保证了只有原作者才能修改。如果其他人修改原文件或者摘要，则公钥解密摘要后的结果与文件摘要运算后的结果是不一样的。</p>
+<p>可以看出SSL证书和代码签名证书的使用场景不一样，不能混用。</p>
 
       
     </div>
@@ -903,7 +924,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-自制数字证书"><span class="nav-number">1.</span> <span class="nav-text">1.自制数字证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-用数字证书签名并打上时间戳"><span class="nav-number">2.</span> <span class="nav-text">2.用数字证书签名并打上时间戳</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#效果"><span class="nav-number">3.</span> <span class="nav-text">效果</span></a></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展"><span class="nav-number"></span> <span class="nav-text">扩展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#走过的坑：沃通有一个签名工具-wosigncode-exe-，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。"><span class="nav-number">0.0.1.</span> <span class="nav-text">走过的坑：沃通有一个签名工具 wosigncode.exe ，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。</span></a></li></ol></li></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-自制数字证书"><span class="nav-number">1.</span> <span class="nav-text">1.自制数字证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-用数字证书签名并打上时间戳"><span class="nav-number">2.</span> <span class="nav-text">2.用数字证书签名并打上时间戳</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#效果"><span class="nav-number">3.</span> <span class="nav-text">效果</span></a></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展"><span class="nav-number"></span> <span class="nav-text">扩展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#走过的坑：沃通有一个签名工具-wosigncode-exe-，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。"><span class="nav-number">0.0.1.</span> <span class="nav-text">走过的坑：沃通有一个签名工具 wosigncode.exe ，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加密-和-签名"><span class="nav-number">1.</span> <span class="nav-text">加密 和 签名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#公钥-和-私钥"><span class="nav-number">2.</span> <span class="nav-text">公钥 和 私钥</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SSL证书-和-代码签名证书"><span class="nav-number">3.</span> <span class="nav-text">SSL证书 和 代码签名证书</span></a></li></div>
             
 
           </div>
