@@ -121,7 +121,7 @@
 <meta property="og:description" content="现在的小视频软件为了增加用户也是操碎了心，南抖音北快手、火山西瓜满地走、微视也来插一手。留住用户最直接的方式就是发红包啦。但是为了那几毛几分钱一直去刷视频，显然不合适呀，还有工作要做呀。 为了愉快的褥羊毛，我写了一个自动脚本，让软件去帮我刷视频吧 😂😂😂">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.pangpangda.cn/46349/taobao.jpg">
-<meta property="og:updated_time" content="2019-10-26T11:51:36.409Z">
+<meta property="og:updated_time" content="2020-09-16T11:38:59.775Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="自动操作Android手机">
 <meta name="twitter:description" content="现在的小视频软件为了增加用户也是操碎了心，南抖音北快手、火山西瓜满地走、微视也来插一手。留住用户最直接的方式就是发红包啦。但是为了那几毛几分钱一直去刷视频，显然不合适呀，还有工作要做呀。 为了愉快的褥羊毛，我写了一个自动脚本，让软件去帮我刷视频吧 😂😂😂">
@@ -459,7 +459,7 @@
 <figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@<span class="built_in">echo</span> off</span><br><span class="line">adb tcpip <span class="number">5555</span> #无线模式，端口<span class="number">5555</span></span><br><span class="line">adb connect <span class="number">192</span>.<span class="number">168</span>.<span class="number">1</span>.<span class="number">110</span> #手机IP</span><br><span class="line">choice /t <span class="number">2</span> /d y /n &gt;<span class="built_in">nul</span> #延时<span class="number">2</span>秒</span><br><span class="line"></span><br><span class="line">:<span class="built_in">start</span></span><br><span class="line"><span class="built_in">set</span> /a m=<span class="variable">%random%</span></span><br><span class="line"><span class="built_in">set</span> /a m=m<span class="variable">%%2</span>0+<span class="number">10</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">%date%</span><span class="variable">%time%</span>--delay:<span class="variable">%m%</span></span><br><span class="line"></span><br><span class="line">adb shell input swipe <span class="number">540</span> <span class="number">1300</span> <span class="number">540</span> <span class="number">500</span> <span class="number">300</span> #模拟滑动</span><br><span class="line">choice /t <span class="variable">%m%</span> /d y /n &gt;<span class="built_in">nul</span> #随机延时，反反作弊</span><br><span class="line"><span class="keyword">goto</span> <span class="built_in">start</span></span><br></pre></td></tr></table></figure>
 <p>如果无线方式无法连接手机，可以先用USB方式连接，执行 <code>adb usb</code> 连击手机，然后再 <code>adb tcpip 5555</code> 切换成无线方式。另外记得手机上要开启调试模式。</p>
 <p>效果如下,bat的定时器不太准，大概3秒滑动一次：</p>
-<video width="100%" src="http://lc-dbpsph0j.cn-n1.lcfile.com/675522a2e6dba0f59b6e/demo.mp4" controls="controls">
+<video width="100%" src="demo.mp4" controls="controls">
 </video>
 
 
@@ -627,7 +627,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">54</span>
+                    <span class="site-state-item-count">56</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -841,7 +841,17 @@
                     
                       
                     
-                    <span class="site-state-item-count">92</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">97</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

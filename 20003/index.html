@@ -123,7 +123,7 @@
 <meta property="og:image" content="https://images.videolan.org/images/libvlc_stack.png">
 <meta property="og:image" content="http://www.mplayerhq.hu/images/screenshots/kutfejek-01.jpg">
 <meta property="og:image" content="https://mpv.io/images/mpv-screenshot-34cd36ae.jpg">
-<meta property="og:updated_time" content="2019-11-04T07:38:59.188Z">
+<meta property="og:updated_time" content="2020-09-16T11:38:59.743Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于QT的视频播放器">
 <meta name="twitter:description" content="项目的需要播放rtsp视频流，因此选择开源的ffmpeg作为解码开发包，并且要使用QT开发。照例，在开始之前先去GitHub上看一看有没有比较成熟的封装，果然找到了几个比较好用的。经过测试，它们都能解码rtsp视频流，但是画面的显示效果差别比较大，可能是因为不熟悉这些sdk的使用，写的demo太简单，没有加入正确的优化吧。下面依次简单介绍一下：">
@@ -455,9 +455,9 @@
         <p>项目的需要播放rtsp视频流，因此选择开源的ffmpeg作为解码开发包，并且要使用QT开发。照例，在开始之前先去GitHub上看一看有没有比较成熟的封装，果然找到了几个比较好用的。经过测试，它们都能解码rtsp视频流，但是画面的显示效果差别比较大，可能是因为不熟悉这些sdk的使用，写的demo太简单，没有加入正确的优化吧。下面依次简单介绍一下：</p>
 <a id="more"></a>
 <h1 id="原生的FFmpeg"><a href="#原生的FFmpeg" class="headerlink" title="原生的FFmpeg"></a>原生的FFmpeg</h1><p>原作者的文章在这里<span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0dhb2Rlcy9hcnRpY2xlL2RldGFpbHMvODM3OTY3MjQ=" title="https://blog.csdn.net/Gaodes/article/details/83796724">QT下使用ffmpeg播放视频范例<i class="fa fa-external-link"></i></span></p>
-<p>先看一下使用这个方案的效果吧。</p>
+<p>先看一下使用这个原生方案的效果吧。</p>
 <video width="100%" src="
-http://lc-DBPspH0J.cn-n1.lcfile.com/2b4ad211de741babf926/11.mp4" controls="controls">
+11.mp4" controls="controls">
 </video>
 
 <p>播放器中显示的视频都是mkv格式文件经过live555产生rtsp视频流，live555服务器部署在同一个局域网内，不存在网络延迟的情况。</p>
@@ -465,12 +465,12 @@ http://lc-DBPspH0J.cn-n1.lcfile.com/2b4ad211de741babf926/11.mp4" controls="contr
 <h1 id="QtAV-项目"><a href="#QtAV-项目" class="headerlink" title="QtAV 项目"></a>QtAV 项目</h1><p>项目地址<span class="exturl" data-url="aHR0cDovL3d3dy5xdGF2Lm9yZy8=" title="http://www.qtav.org/">基于Qt和FFmpeg的跨平台高性能音视频播放框架<i class="fa fa-external-link"></i></span></p>
 <p>使用这个框架编写的demo效果：</p>
 <video width="100%" src="
-http://lc-DBPspH0J.cn-n1.lcfile.com/bec9180bea905e49c40d/22.mp4" controls="controls">
+22.mp4" controls="controls">
 </video>
 
 <p>可以看到和直接使用原生的FFmpeg效果差不多。但是它对FFmpeg和Qt widget封装的很好，使用很简便。对提高项目开发效率非常有利。</p>
 <h1 id="VLC-Qt-项目"><a href="#VLC-Qt-项目" class="headerlink" title="VLC-Qt 项目"></a>VLC-Qt 项目</h1><p>项目地址<span class="exturl" data-url="aHR0cHM6Ly92bGMtcXQudGFuby5zaS8=" title="https://vlc-qt.tano.si/">Quickly create a fully functional cross-platform media player<i class="fa fa-external-link"></i></span>。使用方法也是非常方便，封装的VlcWidgetVideo类可以方便的显示和控制视频播放。我按照作者给出的例子<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3ZsYy1xdC9leGFtcGxlcy90cmVlL21hc3Rlci9zaW1wbGUtcGxheWVy" title="https://github.com/vlc-qt/examples/tree/master/simple-player">vlc-qt/examples<i class="fa fa-external-link"></i></span>写的demo的效果如下：</p>
-<video width="100%" src="http://lc-DBPspH0J.cn-n1.lcfile.com/4781627aff35ac9a4bda/33.mp4" controls="controls">
+<video width="100%" src="33.mp4" controls="controls">
 </video>
 
 <p>可以看到，这是目前效果最好的，画面基本没有花屏，每个都能流畅播放，也达到了项目需求的效果。</p>
@@ -667,7 +667,7 @@ http://lc-DBPspH0J.cn-n1.lcfile.com/bec9180bea905e49c40d/22.mp4" controls="contr
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">54</span>
+                    <span class="site-state-item-count">56</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -881,7 +881,17 @@ http://lc-DBPspH0J.cn-n1.lcfile.com/bec9180bea905e49c40d/22.mp4" controls="contr
                     
                       
                     
-                    <span class="site-state-item-count">92</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">97</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
