@@ -2,41 +2,41 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
     <url>
-        <loc>http://www.pangpangda.cn</loc>
+        <loc>https://www.ppyan.cn</loc>
         <changefreq>daily</changefreq>
         <priority>1</priority>
     </url>
     
     <url>
-        <loc>http://www.pangpangda.cn/404.html</loc>
+        <loc>https://www.ppyan.cn/404.html</loc>
         <lastmod>2019-12-08T12:48:12.862Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     
     <url>
-        <loc>http://www.pangpangda.cn/tags/</loc>
+        <loc>https://www.ppyan.cn/tags/</loc>
         <lastmod>2019-08-19T07:24:59.597Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     
     <url>
-        <loc>http://www.pangpangda.cn/categories/</loc>
+        <loc>https://www.ppyan.cn/categories/</loc>
         <lastmod>2019-08-19T07:24:59.596Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     
     <url>
-        <loc>http://www.pangpangda.cn/about/</loc>
+        <loc>https://www.ppyan.cn/about/</loc>
         <lastmod>2019-08-19T07:24:59.590Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     
     <url>
-        <loc>http://www.pangpangda.cn/archives/</loc>
+        <loc>https://www.ppyan.cn/archives/</loc>
         <lastmod>2018-12-03T09:05:03.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>

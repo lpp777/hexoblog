@@ -3,23 +3,23 @@
 
 
     <sitemap>
-        <loc>http://www.pangpangda.cn/post-sitemap.xml</loc>
-        <lastmod>2020-09-21T08:53:13.777Z</lastmod>
+        <loc>https://www.ppyan.cn/post-sitemap.xml</loc>
+        <lastmod>2021-04-01T15:52:47.732Z</lastmod>
     </sitemap>
 
     <sitemap>
-        <loc>http://www.pangpangda.cn/page-sitemap.xml</loc>
+        <loc>https://www.ppyan.cn/page-sitemap.xml</loc>
         <lastmod>2019-12-08T12:48:12.862Z</lastmod>
     </sitemap>
 
     <sitemap>
-        <loc>http://www.pangpangda.cn/category-sitemap.xml</loc>
+        <loc>https://www.ppyan.cn/category-sitemap.xml</loc>
         <lastmod>2019-08-28T08:46:17.713Z</lastmod>
     </sitemap>
 
     <sitemap>
-        <loc>http://www.pangpangda.cn/tag-sitemap.xml</loc>
-        <lastmod>2020-09-21T08:53:13.777Z</lastmod>
+        <loc>https://www.ppyan.cn/tag-sitemap.xml</loc>
+        <lastmod>2021-04-01T15:52:47.732Z</lastmod>
     </sitemap>
 
 </sitemapindex>

@@ -2,20 +2,20 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
     <url>
-        <loc>http://www.pangpangda.cn</loc>
+        <loc>https://www.ppyan.cn</loc>
         <changefreq>daily</changefreq>
         <priority>1</priority>
     </url>
 
     <url>
-        <loc>http://www.pangpangda.cn/categories/Windows/</loc>
+        <loc>https://www.ppyan.cn/categories/Windows/</loc>
         <lastmod>2019-08-28T08:46:17.713Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
-        <loc>http://www.pangpangda.cn/categories/%E7%BD%91%E6%98%93%E5%8D%9A%E5%AE%A2/</loc>
+        <loc>https://www.ppyan.cn/categories/%E7%BD%91%E6%98%93%E5%8D%9A%E5%AE%A2/</loc>
         <lastmod>2019-08-28T08:46:17.711Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
