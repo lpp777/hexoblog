@@ -117,7 +117,7 @@
 <meta property="og:description" content="Wake-on-LAN (WoL) is an Ethernet or Token Ring computer networking standard that allows a computer to be turned on or awakened by a network message.该技术可以用来在远程打开局域网内的电脑。比如在办公室的内放置一个低功耗的树莓派(Raspberry Pi">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://www.ppyan.cn/11197/wol.png">
-<meta property="og:updated_time" content="2021-04-01T15:52:47.732Z">
+<meta property="og:updated_time" content="2021-04-11T14:42:21.046Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WoL远程唤醒">
 <meta name="twitter:description" content="Wake-on-LAN (WoL) is an Ethernet or Token Ring computer networking standard that allows a computer to be turned on or awakened by a network message.该技术可以用来在远程打开局域网内的电脑。比如在办公室的内放置一个低功耗的树莓派(Raspberry Pi">
@@ -470,10 +470,18 @@
 <img src="/11197/wol.png" title="wol">
 <p>可以看到packet包内的数据和接收到的数据是一致的。</p>
 <p>经测试，任意的端口号都可以用。</p>
-<h1 id="扩展：广播地址"><a href="#扩展：广播地址" class="headerlink" title="扩展：广播地址"></a>扩展：广播地址</h1><p>广播地址必须使用UDP协议，工作在局域网中。</p>
+<h1 id="扩展1：广播地址"><a href="#扩展1：广播地址" class="headerlink" title="扩展1：广播地址"></a>扩展1：广播地址</h1><p>广播地址必须使用UDP协议，工作在局域网中。</p>
 <p>255.255.255.255 只能在所在子网中传播，不能被路由器向外发送</p>
 <p>192.168.1.255 可以被路由器发送到其他的子网，也可以作为本子网的广播</p>
 <p>经测试，在局域网中DHCP协议可以使用255.255.255.255，而用255.255.255.255的WOL协议则被路由器丢弃了，只有用192.168.1.255地址广播才会被路由器转发。因此，未来兼容新，最好使用类似192.168.1.255的地址，不用255.255.255.255。</p>
+<h1 id="扩展2：电脑开启WOL功能"><a href="#扩展2：电脑开启WOL功能" class="headerlink" title="扩展2：电脑开启WOL功能"></a>扩展2：电脑开启WOL功能</h1><p>首先要BIOS，也就是主板要支持，BIOS中的开关选项一般为：电源选项中的 <code>Power On by PCIE devices</code> 、 <code>Power On by Onboard Lan</code>  、<code>wake on lan</code> 、 <code>Intel PXE OPROM</code> 等，不同的主板描述可能不同。这样在关机状态下主板还是会给网卡供电，让网卡能接收数据。<br>然后还要在操作系统中设置，使网卡能够识别wol魔数包</p>
+<h2 id="Windows设置"><a href="#Windows设置" class="headerlink" title="Windows设置"></a>Windows设置</h2><p>设备管理器中，选择正确的网卡，在属性中：<code>高级</code>选项卡中把带有网络唤醒、魔数包字眼的选项全都开启；<code>电源管理</code>中勾选允许此设备唤醒计算机</p>
+<h2 id="Ubuntu设置"><a href="#Ubuntu设置" class="headerlink" title="Ubuntu设置"></a>Ubuntu设置</h2><p>主要参照<span class="exturl" data-url="aHR0cHM6Ly93aWtpLmFyY2hsaW51eC5vcmcvaW5kZXgucGhwL1dha2Utb24tTEFO" title="https://wiki.archlinux.org/index.php/Wake-on-LAN">archlinux wiki<i class="fa fa-external-link"></i></span>进行设置，使用<code>ethtool</code>工具进行网卡的设置，命令为：<code>sudo ethtool -s interface wol g</code>  interface为网卡名，可以用<code>ip a</code> <code>ifconfig</code>等命令去查看。<code>ethtool</code>为Linux中管理网络驱动器和网卡的标准工具。</p>
+<p>信号意义：<code>d</code> (disabled), <code>p</code> (PHY activity), <code>u</code> (unicast activity), <code>m</code> (multicast activity), <code>b</code> (broadcast activity), <code>a</code> (ARP activity), and <code>g</code> (magic packet activity). 如果<code>g</code>不起作用，可以将<code>bg</code>并用。</p>
+<p><code>ethtool</code>设置只会单次生效，也就是重启系统后网卡的wol功能就又默认关闭了，要想设置不失效，必须每次开机都执行一次。这里提供两个简单的方式。</p>
+<p>第一个方式：添加cron定时任务，使用crontab用root身份编辑 <code>@reboot /usr/bin/ethtool -s interface wol g</code>  这样每次系统启动后都会执行一次命令</p>
+<p>第二中方式：添加systemd服务，编写service文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=Configure Wake On LAN</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=oneshot</span><br><span class="line">ExecStart=/sbin/ethtool -s INTERFACE wol g</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=basic.target</span><br></pre></td></tr></table></figure>
 <h1 id="常用端口列表"><a href="#常用端口列表" class="headerlink" title="常用端口列表"></a>常用端口列表</h1><div class="table-container">
 <table>
 <thead>
@@ -2907,7 +2915,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#内外网通信"><span class="nav-number">1.</span> <span class="nav-text">内外网通信</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#wol魔数包"><span class="nav-number">2.</span> <span class="nav-text">wol魔数包</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Wiki的解释："><span class="nav-number">2.1.</span> <span class="nav-text">Wiki的解释：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编程实现"><span class="nav-number">3.</span> <span class="nav-text">编程实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展：广播地址"><span class="nav-number">4.</span> <span class="nav-text">扩展：广播地址</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#常用端口列表"><span class="nav-number">5.</span> <span class="nav-text">常用端口列表</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#内外网通信"><span class="nav-number">1.</span> <span class="nav-text">内外网通信</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#wol魔数包"><span class="nav-number">2.</span> <span class="nav-text">wol魔数包</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Wiki的解释："><span class="nav-number">2.1.</span> <span class="nav-text">Wiki的解释：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编程实现"><span class="nav-number">3.</span> <span class="nav-text">编程实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展1：广播地址"><span class="nav-number">4.</span> <span class="nav-text">扩展1：广播地址</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展2：电脑开启WOL功能"><span class="nav-number">5.</span> <span class="nav-text">扩展2：电脑开启WOL功能</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Windows设置"><span class="nav-number">5.1.</span> <span class="nav-text">Windows设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ubuntu设置"><span class="nav-number">5.2.</span> <span class="nav-text">Ubuntu设置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#常用端口列表"><span class="nav-number">6.</span> <span class="nav-text">常用端口列表</span></a></li></ol></div>
             
 
           </div>
