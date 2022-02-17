@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.5.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="mask-icon" href="/images/favicon.ico?v=6.5.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.5.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="1 在本机推流与播放音视频推流的时候，ffmpeg分别绑定本地一个端口A、B，然后把视频和音频都推送到同一个组播端口C 播放时从组播端口C拉取数据，因为RTP协议的Payload可以区分视频数据和音频数据。 123456789101112131415161718192021222324252627# 推流视频.\ffmpeg.exe -re -i  demo.h264 -vcodec copy -">
+<meta name="keywords" content="RTP,多播,SDP,FFMpeg,VLC,局域网多播,局域网组播">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一次RTP多播测试">
+<meta property="og:url" content="https://www.openlinux.top/7151/index.html">
+<meta property="og:site_name" content="胖胖哒">
+<meta property="og:description" content="1 在本机推流与播放音视频推流的时候，ffmpeg分别绑定本地一个端口A、B，然后把视频和音频都推送到同一个组播端口C 播放时从组播端口C拉取数据，因为RTP协议的Payload可以区分视频数据和音频数据。 123456789101112131415161718192021222324252627# 推流视频.\ffmpeg.exe -re -i  demo.h264 -vcodec copy -">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://www.openlinux.top/7151/Topology.png">
+<meta property="og:updated_time" content="2022-02-17T08:43:17.126Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一次RTP多播测试">
+<meta name="twitter:description" content="1 在本机推流与播放音视频推流的时候，ffmpeg分别绑定本地一个端口A、B，然后把视频和音频都推送到同一个组播端口C 播放时从组播端口C拉取数据，因为RTP协议的Payload可以区分视频数据和音频数据。 123456789101112131415161718192021222324252627# 推流视频.\ffmpeg.exe -re -i  demo.h264 -vcodec copy -">
+<meta name="twitter:image" content="https://www.openlinux.top/7151/Topology.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://www.openlinux.top/7151/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>一次RTP多播测试 | 胖胖哒</title>
+  
+
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3e7dc8ac84df8794dd57fea74e0e6f95";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">胖胖哒</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <h1 class="site-subtitle" itemprop="description">PPJ的日志博客</h1>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.openlinux.top/7151/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ppj">
+      <meta itemprop="description" content="海纳百川，有容乃大">
+      <meta itemprop="image" content="/images/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖胖哒">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">一次RTP多播测试
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+
+
+          
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/7151/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/7151/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="1-在本机推流与播放"><a href="#1-在本机推流与播放" class="headerlink" title="1 在本机推流与播放"></a>1 在本机推流与播放</h1><p>音视频推流的时候，ffmpeg分别绑定本地一个端口A、B，然后把视频和音频都推送到同一个组播端口C</p>
+<p>播放时从组播端口C拉取数据，因为RTP协议的Payload可以区分视频数据和音频数据。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 推流视频</span><br><span class="line">.\ffmpeg.exe -re -i  demo.h264 -vcodec copy -f rtp rtp://233.5.5.5:23466</span><br><span class="line"><span class="meta"> #</span> 推流音频</span><br><span class="line">.\ffmpeg.exe -re -i demo.mp3 -acodec copy -f rtp rtp://233.5.5.5:23466</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> SDP文件</span><br><span class="line"><span class="meta">#</span> all.sdp</span><br><span class="line">v=0</span><br><span class="line">o=- 0 0 IN IP4 127.0.0.1</span><br><span class="line">s=White Butterfly</span><br><span class="line">c=IN IP4 233.5.5.5</span><br><span class="line">t=0 0</span><br><span class="line">a=tool:libavformat 57.56.101</span><br><span class="line">m=audio 23466 RTP/AVP 14</span><br><span class="line">b=AS:128</span><br><span class="line"></span><br><span class="line">v=0</span><br><span class="line">o=- 0 0 IN IP4 127.0.0.1</span><br><span class="line">s=No Name</span><br><span class="line">c=IN IP4 233.5.5.5</span><br><span class="line">t=0 0</span><br><span class="line">a=tool:libavformat 57.56.101</span><br><span class="line">m=video 23466 RTP/AVP 96</span><br><span class="line">a=rtpmap:96 H264/90000</span><br><span class="line"></span><br><span class="line"><span class="meta"> #</span> 播放</span><br><span class="line">.\ffplay.exe -protocol_whitelist file,udp,rtp   all.sdp</span><br></pre></td></tr></table></figure>
+<p>也可以单独播放视频、音频，只需要将SDP分开写就好。</p>
+<a id="more"></a>
+<h2 id="tips-1·-Payload"><a href="#tips-1·-Payload" class="headerlink" title="tips 1· Payload"></a>tips 1· Payload</h2><p>RTP协议中使用Payload标识数据类型，占用7bits，范围0~127。</p>
+<p>其中，0~95有明确的定义，比如PT=14为<span class="exturl" data-url="aHR0cHM6Ly9lbi53aWtpcGVkaWEub3JnL3dpa2kvTVBFRy0x" title="https://en.wikipedia.org/wiki/MPEG-1">MPEG-1<i class="fa fa-external-link"></i></span> or <span class="exturl" data-url="aHR0cHM6Ly9lbi53aWtpcGVkaWEub3JnL3dpa2kvTVBFRy0y" title="https://en.wikipedia.org/wiki/MPEG-2">MPEG-2<i class="fa fa-external-link"></i></span> 音频audio；PT=32为<span class="exturl" data-url="aHR0cHM6Ly9lbi53aWtpcGVkaWEub3JnL3dpa2kvTVBFRy0x" title="https://en.wikipedia.org/wiki/MPEG-1">MPEG-1<i class="fa fa-external-link"></i></span> or <span class="exturl" data-url="aHR0cHM6Ly9lbi53aWtpcGVkaWEub3JnL3dpa2kvTVBFRy0y" title="https://en.wikipedia.org/wiki/MPEG-2">MPEG-2<i class="fa fa-external-link"></i></span> 视频video；PT=33为MPEG-2 Transport Stream（MP2T）包含音频audio和视频video。</p>
+<p>96以后是用户自定义的动态负载，上面方式中，ffmpeg默认将H264数据设为PT=96。</p>
+<p>一种数据类型使用一种PT，RTP只能携带一种负载（头结构决定了只有一个PT段），所以，音频和视频裸流要分开发送；MP2T中是ts格式的容器，包含音视频的封装格式。</p>
+<p>使用mp2t：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>推流 输出格式必须使用muxer封装为container，rtp_mpegts</span><br><span class="line">.\ffmpeg.exe -re -i .\demo.mp4 -c copy -f rtp_mpegts rtp://233.5.5.5:7788</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>播放 可以同时播放声音和画面</span><br><span class="line">\ffplay.exe rtp://233.5.5.5:7788</span><br></pre></td></tr></table></figure>
+<h2 id="tips-2·-url-sdp"><a href="#tips-2·-url-sdp" class="headerlink" title="tips 2· url ~ sdp"></a>tips 2· url ~ sdp</h2><p>使用RTP协议规定的PT值时，可以直接用url方式播放，如<code>.\ffplay.exe rtp://233.5.5.5:23466</code>或<code>\vlc.exe rtp://233.5.5.5:23466</code><br>使用自定义动态负载时，如PT=96的h264裸流，必须用Session Description Protocol-SDP文件明确说明负载属性。</p>
+<p>PT≥96时使用URL，会播放失败：</p>
+<ul>
+<li>ffmpeg出现错误：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Unable to receive RTP payload type 96 without an SDP file describing it</span><br></pre></td></tr></table></figure>
+<ul>
+<li>VLC出现错误：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SDP required:</span><br><span class="line">A description in SDP format is required to receive the RTP stream. Note that rtp:// URIs cannot work with dynamic RTP payload format (96).</span><br></pre></td></tr></table></figure>
+<h1 id="2-在局域网的组播"><a href="#2-在局域网的组播" class="headerlink" title="2 在局域网的组播"></a>2 在局域网的组播</h1><p>和本机组播一样，在一台电脑上推流，在另一台电脑上就可以观看。</p>
+<p>推流电脑：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 推流视频</span></span><br><span class="line">.\ffmpeg.exe -re -i  demo.h264 -vcodec copy -f rtp rtp://<span class="number">233.5</span>.<span class="number">5.5</span>:<span class="number">23466</span></span><br><span class="line"> <span class="comment"># 推流音频</span></span><br><span class="line">.\ffmpeg.exe -re -i demo.mp3 -acodec copy -f rtp rtp://<span class="number">233.5</span>.<span class="number">5.5</span>:<span class="number">23466</span></span><br></pre></td></tr></table></figure>
+<p>拉流电脑：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> #</span> 播放</span><br><span class="line">.\ffplay.exe -protocol_whitelist file,udp,rtp   all.sdp</span><br></pre></td></tr></table></figure>
+<h1 id="3-VLC播放失败的问题"><a href="#3-VLC播放失败的问题" class="headerlink" title="3 VLC播放失败的问题"></a>3 VLC播放失败的问题</h1><p>我在测试过程中发现wireshark可以抓取到rtp包，但是vlc就是不能播放。换成ubuntu系统就可以用VLC播放，很奇怪。</p>
+<p>这个问题困扰了好久终于发现原因了。是因为虚拟机网卡导致的。</p>
+<h3 id="3-1-解决方案"><a href="#3-1-解决方案" class="headerlink" title="3.1 解决方案"></a>3.1 解决方案</h3><p>当客户端电脑上安装了 Oracle VM VirtualBox 的网卡 <code>VirtualBox Host-Only Ethernet Adapter</code> ，必须禁用这个适配器才能接收到rtp数据，否则vlc、ffplay等不能正常接收，不能播放。</p>
+<p>禁用<code>VirtualBox Host-Only Ethernet Adapter</code>后，VLC就可以正常接收到多播数据了。</p>
+<p>如果还不能播放，可能是Windows防火墙阻止了，需要去防火墙添加规则，放行VLC的所有数据。</p>
+<h3 id="3-2-还有个问题"><a href="#3-2-还有个问题" class="headerlink" title="3.2 还有个问题"></a>3.2 还有个问题</h3><p>我所在的局域网网络拓扑如下</p>
+<img src="/7151/Topology.png">
+<p>用一个路由器组成的192.168.1.0/24的局域网，所有设备都是一个网段。</p>
+<p>RTP服务器接有无线网卡和有线网卡，RTP推流两路信号分别到233.2.2.2 和 233.4.4.4 两个地址。</p>
+<p>用有线连接的电脑都能接收到多播数据包，并且能够在VLC上播放</p>
+<p>但是只用无线WiFi连接的电脑收不到多播数据包，更谈不上播放了。在笔记本上用Wireshark抓不到ip为233.x.x.x的包，暂时不知道什么原因。</p>
+<h1 id="4-在本机的单播"><a href="#4-在本机的单播" class="headerlink" title="4 在本机的单播"></a>4 在本机的单播</h1><p>因为单播的本地端口A、B都推送到本地端口C，当有进程和C端口建立连接后，会阻止其他进程再去链接C端口。因此推流时需要把音视频分别推送到不同的端口，然后播放时在不同的端口拉取数据。</p>
+<p>即推送时 ：</p>
+<p>视频 本地端口A 推送到 本地端口 C</p>
+<p>音频 本地端口B 推送到 本地端口 D</p>
+<p>播放时：</p>
+<p>视频 本地端口E 拉取 本地端口 C</p>
+<p>音频 本地端口F 拉取 本地端口 D</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 推流视频</span><br><span class="line">.\ffmpeg.exe -re -i  demo.h264 -vcodec copy -f rtp rtp://localhost:23477</span><br><span class="line"><span class="meta"> #</span> 推流音频</span><br><span class="line">.\ffmpeg.exe -re -i demo.mp3 -acodec copy -f rtp rtp://localhost:23488</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> SDP文件</span><br><span class="line"><span class="meta">#</span> all.sdp</span><br><span class="line">v=0</span><br><span class="line">o=- 0 0 IN IP4 127.0.0.1</span><br><span class="line">s=White Butterfly</span><br><span class="line">c=IN IP4 localhost</span><br><span class="line">t=0 0</span><br><span class="line">a=tool:libavformat 57.56.101</span><br><span class="line">m=audio 23488 RTP/AVP 14</span><br><span class="line">b=AS:128</span><br><span class="line"></span><br><span class="line">v=0</span><br><span class="line">o=- 0 0 IN IP4 127.0.0.1</span><br><span class="line">s=No Name</span><br><span class="line">c=IN IP4 localhost</span><br><span class="line">t=0 0</span><br><span class="line">a=tool:libavformat 57.56.101</span><br><span class="line">m=video 23477 RTP/AVP 96</span><br><span class="line">a=rtpmap:96 H264/90000</span><br><span class="line"></span><br><span class="line"><span class="meta"> #</span> 播放</span><br><span class="line">.\ffplay.exe -protocol_whitelist file,udp,rtp   all.sdp</span><br></pre></td></tr></table></figure>
+<h1 id="ffmpeg-vlc"><a href="#ffmpeg-vlc" class="headerlink" title="ffmpeg  vlc"></a>ffmpeg  vlc</h1><p>ffmpeg的播放效果很好，音视频都能流畅播放。VLC可以流畅播放音频，视频总是卡在某一帧，不能更新数据，不知道为什么。</p>
+<p>用Wireshark抓包数据是一直更新的</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+       
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div style="color:#FC6423;">虽然很不要脸，但是还请您多多打赏 ^_^</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wepay.png" alt="ppj 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="ppj 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/RTP/" rel="tag"># RTP</a>
+          
+            <a href="/tags/多播/" rel="tag"># 多播</a>
+          
+            <a href="/tags/SDP/" rel="tag"># SDP</a>
+          
+            <a href="/tags/FFMpeg/" rel="tag"># FFMpeg</a>
+          
+            <a href="/tags/VLC/" rel="tag"># VLC</a>
+          
+            <a href="/tags/局域网多播/" rel="tag"># 局域网多播</a>
+          
+            <a href="/tags/局域网组播/" rel="tag"># 局域网组播</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/43416/" rel="next" title="python批量修改文件某行内容">
+                <i class="fa fa-chevron-left"></i> python批量修改文件某行内容
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/54889/" rel="prev" title="中国简史">
+                中国简史 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/me.jpg" alt="ppj">
+            
+              <p class="site-author-name" itemprop="name">ppj</p>
+              <p class="site-description motion-element" itemprop="description">海纳百川，有容乃大</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">59</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">105</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <span class="exturl" data-url="aHR0cHM6Ly9scHA3NzcuZ2l0ZWUuaW8vZGlhbmJhby8=" title="https://lpp777.gitee.io/dianbao/">电报机</span>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-在本机推流与播放"><span class="nav-number">1.</span> <span class="nav-text">1 在本机推流与播放</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#tips-1·-Payload"><span class="nav-number">1.1.</span> <span class="nav-text">tips 1· Payload</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tips-2·-url-sdp"><span class="nav-number">1.2.</span> <span class="nav-text">tips 2· url ~ sdp</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-在局域网的组播"><span class="nav-number">2.</span> <span class="nav-text">2 在局域网的组播</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-VLC播放失败的问题"><span class="nav-number">3.</span> <span class="nav-text">3 VLC播放失败的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-解决方案"><span class="nav-number">3.0.1.</span> <span class="nav-text">3.1 解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-还有个问题"><span class="nav-number">3.0.2.</span> <span class="nav-text">3.2 还有个问题</span></a></li></ol></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#4-在本机的单播"><span class="nav-number">4.</span> <span class="nav-text">4 在本机的单播</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ffmpeg-vlc"><span class="nav-number">5.</span> <span class="nav-text">ffmpeg  vlc</span></a></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PPJ原创博客</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <span class="exturl theme-link" data-url="aHR0cHM6Ly9oZXhvLmlv">Hexo</span> 强力驱动</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@7.1.2/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'dark'});
+    }
+  </script>
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.5.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.5.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.5.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.5.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: true,
+        notify: false,
+        appId: 'DBPspH0JVeKk8sxAjHYtXODh-gzGzoHsz',
+        appKey: 'HLutKP3fTGE90kRNxD3byBTO',
+        placeholder: '你有什么想说的吗?',
+        avatar:'wavatar',
+        meta:guest,
+        pageSize:'10' || 10,
+        visitor: false
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script type="text/javascript" src="/js/src/exturl.js?v=6.5.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

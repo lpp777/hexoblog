@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.5.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="mask-icon" href="/images/favicon.ico?v=6.5.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.5.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="因项目的需要，翻阅了一些网络设置的内容，对路由器的认识又清晰并且深入的一步。由于在生活中很常见，我们一般提到的路由器就是指家庭中供手机、电脑中上网用的那个设备。但是严格来说，家用路由器并不是单纯的路由器，还包含了交换机功能，并且使用了端口复用NAT方式与外部进行数据交换(PAT)。">
+<meta name="keywords" content="胖胖哒,博客">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在局域网内搭建代理服务器上网">
+<meta property="og:url" content="https://www.openlinux.top/14373/index.html">
+<meta property="og:site_name" content="胖胖哒">
+<meta property="og:description" content="因项目的需要，翻阅了一些网络设置的内容，对路由器的认识又清晰并且深入的一步。由于在生活中很常见，我们一般提到的路由器就是指家庭中供手机、电脑中上网用的那个设备。但是严格来说，家用路由器并不是单纯的路由器，还包含了交换机功能，并且使用了端口复用NAT方式与外部进行数据交换(PAT)。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://www.openlinux.top/14373/ipv4.png">
+<meta property="og:image" content="https://www.openlinux.top/14373/gateway.png">
+<meta property="og:image" content="https://www.openlinux.top/14373/nat.png">
+<meta property="og:image" content="https://www.openlinux.top/14373/正向代理.png">
+<meta property="og:image" content="https://www.openlinux.top/14373/反向代理.png">
+<meta property="og:image" content="https://www.openlinux.top/14373/代理.png">
+<meta property="og:image" content="https://www.openlinux.top/14373/代理关.png">
+<meta property="og:image" content="https://www.openlinux.top/14373/代理开.png">
+<meta property="og:updated_time" content="2022-02-17T07:31:32.176Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="在局域网内搭建代理服务器上网">
+<meta name="twitter:description" content="因项目的需要，翻阅了一些网络设置的内容，对路由器的认识又清晰并且深入的一步。由于在生活中很常见，我们一般提到的路由器就是指家庭中供手机、电脑中上网用的那个设备。但是严格来说，家用路由器并不是单纯的路由器，还包含了交换机功能，并且使用了端口复用NAT方式与外部进行数据交换(PAT)。">
+<meta name="twitter:image" content="https://www.openlinux.top/14373/ipv4.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://www.openlinux.top/14373/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>在局域网内搭建代理服务器上网 | 胖胖哒</title>
+  
+
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3e7dc8ac84df8794dd57fea74e0e6f95";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">胖胖哒</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <h1 class="site-subtitle" itemprop="description">PPJ的日志博客</h1>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.openlinux.top/14373/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ppj">
+      <meta itemprop="description" content="海纳百川，有容乃大">
+      <meta itemprop="image" content="/images/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖胖哒">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">在局域网内搭建代理服务器上网
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+
+
+          
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/14373/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/14373/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>因项目的需要，翻阅了一些网络设置的内容，对路由器的认识又清晰并且深入的一步。由于在生活中很常见，我们一般提到的路由器就是指家庭中供手机、电脑中上网用的那个设备。但是严格来说，家用路由器并不是单纯的路由器，还包含了交换机功能，并且使用了端口复用NAT方式与外部进行数据交换(PAT)。<br><a id="more"></a></p>
+<p>因项目用到了网络通信，虽然用路由器等设备能够完成项目的需求，但是对网络通信的内部细节和原理概念不是很清楚，抽时间查阅了一些有关的资料，并通过项目的经验总结出来了这一篇文章。</p>
+<p>简单介绍一下PAT(port address translation)，我们知道家用路由器中要填写一个WAN口IP才能上网，那么这个WAN口IP就是可路由的共有IP地址。那么什么是公有IP呢，互联网规定了IPv4的地址分为共有地址和私有地址，私有地址就是常见的192.168.1.0、10.1.1.0等等地址段，这些地址通常用来设置局域网内电脑的IP。比如我们设置了路由器的访问地址是192.168.1.1，那么连接这个路由器的电脑IP就可以是192.168.1.100（2-254之间）。这些私有IP是帮助我们建设局域网的，只能在局域网内访问，路由器是不会转发私有IP的数据到互联网的，即不可路由。那剩下的公有IP就可以在路由器之间传递数据。因此，为了能够上互联网，就必须有一个公有IP。你的路由器设置好了WAN口，那么公有IP就有了，当你浏览网页时，你的电脑、笔记本、手机上网都会使用这个IP向服务器请求数据，服务器也会发送数据到这个IP地址，也就是发送给你的路由器。然后你的路由器再把数据发给你的电脑，你就看到网页了。</p>
+<p>那么问题来了，当你的电脑、笔记本、手机同时上网时，路由器是怎么知道改把哪个数据包发送给电脑、笔记本、手机呢。这既是PAT的作用了，你的电脑、笔记本、手机上网时，路由器都会使用PAT给每个局域网IP分配一个端口号，然后公有IP用这个端口号去访问服务器，服务器返回的数据中也会包含这个端口号，路由器再根据这个端口号把数据发给对应的子网设备。</p>
+<h2 id="几个重要的概念"><a href="#几个重要的概念" class="headerlink" title="几个重要的概念"></a>几个重要的概念</h2><img src="/14373/ipv4.png" title="ipv4">
+<p>IP地址：互联网协议地址，每一个联网的电脑都有一个IP。</p>
+<ul>
+<li>大家都明白啦，每一个电脑都要有IP才能上网，IP就是电脑的地址，告诉别人按照这个地址访问我</li>
+</ul>
+<p>子网掩码：从名字子网可以看出，用来划分小块网络的。将IP地址划分为<code>网络地址</code>和<code>主机地址</code>，同一个<code>网络地址</code>的电脑组成一个局域网</p>
+<ul>
+<li>通过将IP地址和子网掩码进行<code>位与</code>运算，判断两个IP运算后的结果是不是相同来判断这两个IP是不是属于同一个子网。如果属于同一个子网，则直接通信；如果不是一个子网，则会把数据发送到网关。例如电脑AM的IP为192.168.1.12，电脑BM的IP为192.168.1.22，电脑CM的IP为192.168.2.32，子网掩码都是255.255.255.0。通过IP与子网掩码<code>位与</code>运算后分别得到 AM:192.168.1.0、BM:192.168.1.0、CM:192.168.2.0，看出AM与BM是相同的，即有相同的<code>网络地址</code> 192.1.1，属于一个局域网，通过<code>主机地址</code> 12、22 区分不同的主机；CM跟他们都是不一样的，那么A和B就可以通过交换机通信啦，甚至一根网线直接连接A和B的网口也能通信；但是C属于另一个子网，用一根网线或者一个交换机是无法实现通信的，要想进行通信就必须借助到<code>网关</code>。</li>
+</ul>
+<p>网关：子网之间连接的关口。</p>
+<ul>
+<li>连接两个子网的设备。例如上面的例子电脑AM BM CM，AM想要与CM通信就必须经过网关的转接<img src="/14373/gateway.png">
+</li>
+</ul>
+<p>路由器：决定两个电脑之间的网络路径</p>
+<ul>
+<li>互联网是超级大的，电脑与电脑（服务器也是电脑）之间存在着很多网关、路由器，网络通信中如何通过这些设备才能把数据发送给正确的电脑，就需要路由器给出一条网络路径。而且点到点的网络路径就不只一条，路由协议一般会给出最优的路径。</li>
+<li>为了防止数据在互联网内的路由器之间无限循环和转发，IP协议规定了数据包的生存时间TTL，TTL一般为64。当经过一个路由器时，路由器会将TTL减一，当TTL减到0的时候路由器就会丢弃这个数据包。即一般来说IP数据包最多能经过64个路由器，如果经过64个路由器后还没找到目的电脑，那么数据就消失了。 </li>
+</ul>
+<p>DHCP：动态主机配置协议</p>
+<ul>
+<li>电脑需要配置好IP、子网掩码、网关才能上网，如果一个局域网中有很多电脑时，一个个手动配置就太麻烦了。DHCP服务就能够自动配置网络参数。如果电脑开启了DHCP（自动获取IP地址），那么电脑会主动向局域网广播请求IP地址，DHCP服务器收到后会返回给其配置参数，然后电脑根据得到的配置参数自动设置IP等。当IP地址租期到期后，电脑会再次向DHCP服务器请求一个IP。</li>
+</ul>
+<p>NAT：网络地址转换</p>
+<ul>
+<li>IP地址分为公有地址和私有地址。公有地址能够在路由器间路由；私有地址只能在局域网中靠交换机连接，不能被路由。比如说你的IP是192.168.1.111，那么同一个局域网的电脑才能够访问你，其他地方的电脑是找不到你的；而百度的IP地址 14.215.177.38 是公有地址，在任何地方都能访问。</li>
+<li>当我们访问百度的时候，IP数据包中就包含了源地址（我们电脑的IP）和目的地址（百度服务器的IP），百度的服务器收到我们的请求后会发送数据给我们的电脑，他会将我们电脑的IP作为目的地址发送IP数据包。当我们电脑的IP是公有地址时，我们能够正常收到返回的数据；当我们的电脑IP是局域网的私有地址时，路由器是找不到我们的，也就是通信失败。</li>
+<li>为了能够正常通信，就必须告诉百度服务器一个公有地址，一般要去电信申请，然后填入我们的路由器（或者电脑），比如 220.181.57.77 。我们有了这个IP就可以接入互联网了</li>
+<li>如果只有一个公有地址220.181.57.77，那么局域网内其他电脑接入互联网也要用这个IP，为了保证都能上网，一般我们会把220.181.57.77写入路由器的wan口，然后局域网内电脑都接入路由器的lan口</li>
+<li><p>当有电脑访问互联网时，比如访问百度，电脑会在IP数据包中填写源地址为自己的IP:Port,目的地址为百度IP:80，然后发出去，首先经过路由器，路由器的NAT服务会开通一个端口并绑定该电脑，然后将IP数据包中源地址换成路由器的公有地址和新开的端口发送出去，等到百度回复的IP数据包到来后，路由器的NAT服务再根据端口号选择将数据包发给哪个电脑，具体如图：</p>
+<img src="/14373/nat.png">
+</li>
+<li><p>NAT 有三种工作方式：<br>静态转换，一个私有地址唯一对应一个公有地址，不可变，需要一个公有地址池；<br>动态转换，一个私有地址随机分配一个公有地址，用完就会释放，需要一个公有地址池；<br>端口多路复用，即上面讲述的方式，共享一个公有地址，通过端口区分局域网内的电脑，极大节约公有地址，并能隐藏局域网内所有主机</p>
+</li>
+</ul>
+<h1 id="正向代理"><a href="#正向代理" class="headerlink" title="正向代理"></a>正向代理</h1><p>经常听到代理上网，代理，顾名思义，通过第三方访问服务器，即，你上网时，你的电脑不直接访问网站，而是让别的电脑去访问网站，然后把网站数据再发给你，这样你就通过其他的电脑获得了你想要的数据。这样做的好处是可以隐藏你的电脑，因为网站只知道访问它的电脑的信息，因此网站只知道你设置代理的电脑，而你的电脑没有访问网站，网站时不知道你的。</p>
+<p>正向代理最大的特点是客户端非常明确要访问的服务器地址；服务器只清楚请求来自哪个代理服务器，而不清楚来自哪个具体的客户端；正向代理模式屏蔽或者隐藏了真实客户端信息。它代理的是客户端。</p>
+<p>一般作为用户，只用到正向代理<br><img src="/14373/正向代理.png"></p>
+<h1 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h1><p>反向代理服务器位于用户与目标服务器之间，但是对于用户而言，反向代理服务器就相当于目标服务器，即用户直接访问反向代理服务器就可以获得目标服务器的资源。同时，用户不需要知道目标服务器的地址，也无须在用户端作任何设定。反向代理服务器通常可用来作为Web加速，即使用反向代理作为Web服务器的前置机来降低网络和服务器的负载，提高访问效率。它代理的是服务端。</p>
+<p>即，反向代理一般用在网站服务器上，用来分担负载压力，分流流量。对于访问者来说，是不知道服务器有没有代理。<br><img src="/14373/反向代理.png"></p>
+<h1 id="正向代理小实验"><a href="#正向代理小实验" class="headerlink" title="正向代理小实验"></a>正向代理小实验</h1><p><span class="exturl" data-url="aHR0cHM6Ly90aW55cHJveHkuZ2l0aHViLmlvLw==" title="https://tinyproxy.github.io/">tinyproxy<i class="fa fa-external-link"></i></span>是一个Linux上的轻量级代理软件，实验选择Linux主机作为代理服务器，Windows主机通过代理上网。</p>
+<h3 id="Linux安装tinyproxy"><a href="#Linux安装tinyproxy" class="headerlink" title="Linux安装tinyproxy"></a>Linux安装tinyproxy</h3><p>Linux上，可以下载源码安装，也可以 apt install tinyproxy。</p>
+<p>修改配置文件，屏蔽两行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#允许任何地址连接</span><br><span class="line">#Allow 127.0.0.1</span><br><span class="line"></span><br><span class="line">#允许任何端口连接</span><br><span class="line">#ConnectPort 443</span><br><span class="line">#ConnectPort 563</span><br></pre></td></tr></table></figure>
+<h3 id="Windows配置代理"><a href="#Windows配置代理" class="headerlink" title="Windows配置代理"></a>Windows配置代理</h3><p>在代理设置中填入Linux的IP地址和tinyproxy监听的端口号<br><img src="/14373/代理.png"><br>设置好后，用浏览器打开百度，发现无法连接到代理服务器，说明Windows代理设置生效<br><img src="/14373/代理关.png"></p>
+<h3 id="启动tinyproxy服务"><a href="#启动tinyproxy服务" class="headerlink" title="启动tinyproxy服务"></a>启动tinyproxy服务</h3><p><code>tinyproxy -d</code> 在前台运行tinyproxy服务，再次去浏览百度，发现正常访问<br><img src="/14373/代理开.png"></p>
+<p>这样就可以通过Linux主机代理上网了，可以隐藏自己的Windows电脑了</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+       
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div style="color:#FC6423;">虽然很不要脸，但是还请您多多打赏 ^_^</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wepay.png" alt="ppj 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="ppj 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/8698/" rel="next" title="在VPS上快速搭建hexo博客系统">
+                <i class="fa fa-chevron-left"></i> 在VPS上快速搭建hexo博客系统
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/20003/" rel="prev" title="基于QT的视频播放器">
+                基于QT的视频播放器 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/me.jpg" alt="ppj">
+            
+              <p class="site-author-name" itemprop="name">ppj</p>
+              <p class="site-description motion-element" itemprop="description">海纳百川，有容乃大</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">59</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">105</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <span class="exturl" data-url="aHR0cHM6Ly9scHA3NzcuZ2l0ZWUuaW8vZGlhbmJhby8=" title="https://lpp777.gitee.io/dianbao/">电报机</span>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#几个重要的概念"><span class="nav-number">1.</span> <span class="nav-text">几个重要的概念</span></a></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#正向代理"><span class="nav-number"></span> <span class="nav-text">正向代理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#反向代理"><span class="nav-number"></span> <span class="nav-text">反向代理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#正向代理小实验"><span class="nav-number"></span> <span class="nav-text">正向代理小实验</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux安装tinyproxy"><span class="nav-number">0.1.</span> <span class="nav-text">Linux安装tinyproxy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Windows配置代理"><span class="nav-number">0.2.</span> <span class="nav-text">Windows配置代理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动tinyproxy服务"><span class="nav-number">0.3.</span> <span class="nav-text">启动tinyproxy服务</span></a></li></ol></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PPJ原创博客</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <span class="exturl theme-link" data-url="aHR0cHM6Ly9oZXhvLmlv">Hexo</span> 强力驱动</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@7.1.2/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'dark'});
+    }
+  </script>
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.5.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.5.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.5.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.5.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: true,
+        notify: false,
+        appId: 'DBPspH0JVeKk8sxAjHYtXODh-gzGzoHsz',
+        appKey: 'HLutKP3fTGE90kRNxD3byBTO',
+        placeholder: '你有什么想说的吗?',
+        avatar:'wavatar',
+        meta:guest,
+        pageSize:'10' || 10,
+        visitor: false
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script type="text/javascript" src="/js/src/exturl.js?v=6.5.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

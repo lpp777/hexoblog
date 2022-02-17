@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.5.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="mask-icon" href="/images/favicon.ico?v=6.5.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.5.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Docker 是一个开源的应用容器引擎，类似于虚拟机，但是docker比虚拟机更轻更简洁，非常适合快速部署跨平台的应用。">
+<meta name="keywords" content="docker,ssr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker小试">
+<meta property="og:url" content="https://www.openlinux.top/22851/index.html">
+<meta property="og:site_name" content="胖胖哒">
+<meta property="og:description" content="Docker 是一个开源的应用容器引擎，类似于虚拟机，但是docker比虚拟机更轻更简洁，非常适合快速部署跨平台的应用。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="data:image/jpg;base64,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">
+<meta property="og:updated_time" content="2022-02-17T07:31:31.822Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="docker小试">
+<meta name="twitter:description" content="Docker 是一个开源的应用容器引擎，类似于虚拟机，但是docker比虚拟机更轻更简洁，非常适合快速部署跨平台的应用。">
+<meta name="twitter:image" content="data:image/jpg;base64,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">
+
+
+
+
+
+
+  <link rel="canonical" href="https://www.openlinux.top/22851/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>docker小试 | 胖胖哒</title>
+  
+
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3e7dc8ac84df8794dd57fea74e0e6f95";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">胖胖哒</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <h1 class="site-subtitle" itemprop="description">PPJ的日志博客</h1>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.openlinux.top/22851/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ppj">
+      <meta itemprop="description" content="海纳百川，有容乃大">
+      <meta itemprop="image" content="/images/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖胖哒">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">docker小试
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+
+
+          
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/22851/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/22851/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Docker 是一个开源的应用容器引擎，类似于虚拟机，但是docker比虚拟机更轻更简洁，非常适合快速部署跨平台的应用。</p>
+<a id="more"></a>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>在Ubuntu上做了几个小测试，大体上能够了解Docker怎么用了。</p>
+<ol>
+<li><p>首先安装docker<br>在Ubuntu上用 apt install docker.io，在其他系统上软件包名字会有所不同</p>
+</li>
+<li><p>构建docker image<br> docker采用了类似增量构建的方式，一层一层的在base image上添加功能。base image是各个linux发行版的最小镜像，由docker官方提供。我们在base image的基础上实现自己的功能。<br> docker使用Dockerfile构建image</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#选择一个基础镜像，alpine是一个体积非常小的linux系统</span></span><br><span class="line"><span class="keyword">FROM</span> alpine:<span class="number">3.9</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#在构建阶段，在系统里执行命令</span></span><br><span class="line"><span class="comment">#安装软件，alpine的包管理器为apk</span></span><br><span class="line"><span class="comment">#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories</span></span><br><span class="line"><span class="keyword">RUN</span> apk update</span><br><span class="line"><span class="keyword">RUN</span> apk add python</span><br><span class="line"><span class="keyword">RUN</span> apk add wget</span><br><span class="line"><span class="comment">#从其他地方获取文件</span></span><br><span class="line"><span class="keyword">RUN</span> wget --no-check-certificate https://github.com/shadowsocksr-backup/shadowsocksr/archive/3.1.2.tar.gz -O /tmp/3.1.2.tar.gz</span><br><span class="line"><span class="keyword">RUN</span> tar -xf /tmp/3.1.2.tar.gz -C /tmp/</span><br><span class="line"><span class="keyword">RUN</span> mv /tmp/shadowsocksr-3.1.2/shadowsocks/  /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置环境变量，构建时和运行时都有效</span></span><br><span class="line"><span class="keyword">ENV</span>	port		<span class="number">8888</span></span><br><span class="line"><span class="keyword">ENV</span>	password	<span class="number">888888888</span></span><br><span class="line"><span class="keyword">ENV</span>	method		aes-<span class="number">256</span>-cfb</span><br><span class="line"><span class="keyword">ENV</span> protocol	auth_aes128_md5</span><br><span class="line"><span class="keyword">ENV</span> obfs		plain</span><br><span class="line"><span class="keyword">ENV</span> obfs_param	[]</span><br><span class="line"></span><br><span class="line"><span class="comment">#设置工作路径</span></span><br><span class="line"><span class="keyword">WORKDIR</span> /usr/local/shadowsocks/</span><br><span class="line"></span><br><span class="line"><span class="comment">#运行时执行的命令</span></span><br><span class="line"><span class="keyword">CMD</span> python server.py -p $port -k $password -m $method -O $protocol -o $obfs -G $obfs_param</span><br><span class="line"></span><br><span class="line"><span class="comment">#构建命令</span></span><br><span class="line"><span class="comment">#docker build -t ssr/alpine:1.0 .</span></span><br><span class="line"><span class="comment">#设置该image的tag为ssr/alpine 版本为1.0，版本不同image不同</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#运行</span></span><br><span class="line"><span class="comment">#docker run --restart=always --env password=qwerasd -p 8888:8888 ssr/alpine:1.0</span></span><br><span class="line"><span class="comment">#通过--env传递环境变量</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p><img src="data:image/jpg;base64,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" alt="本地文件"><br><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#另一种方式</span></span><br><span class="line"><span class="keyword">FROM</span> alpine:<span class="number">3.9</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#如果速度慢，替换更新源为阿里云</span></span><br><span class="line"><span class="keyword">RUN</span> sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories</span><br><span class="line"><span class="keyword">RUN</span> apk update</span><br><span class="line"><span class="keyword">RUN</span> apk add python</span><br><span class="line"><span class="comment">#从本地复制到image内，</span></span><br><span class="line"><span class="comment">#注意copy不会复制最外层目录，只会复制该目录内的内容（文件和文件夹），所有要在destination加一个文件夹</span></span><br><span class="line"><span class="keyword">COPY</span> ./shadowsocks/ /usr/local/shadowsocks/</span><br><span class="line"><span class="keyword">WORKDIR</span> /usr/local/shadowsocks/</span><br><span class="line"></span><br><span class="line"><span class="comment">#另一种运行方式</span></span><br><span class="line"><span class="keyword">ENTRYPOINT</span> ["python", "server.py"]</span><br><span class="line"></span><br><span class="line"><span class="comment">#运行</span></span><br><span class="line"><span class="comment">#sudo docker run -p 34567:34567 ssr -p 34567 -k 1234567</span></span><br><span class="line"><span class="comment">#使用原生方式设置参数</span></span><br></pre></td></tr></table></figure></p>
+<p>如果用配置文件的方式设置参数</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> alpine:<span class="number">3.9</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span> sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories</span><br><span class="line"><span class="keyword">RUN</span> apk update</span><br><span class="line"><span class="keyword">RUN</span> apk add python</span><br><span class="line"><span class="comment">#从本地复制到image内，</span></span><br><span class="line"><span class="comment">#注意copy不会复制最外层目录，只会复制该目录内的内容（文件和文件夹），所有要在destination加一个文件夹</span></span><br><span class="line"><span class="keyword">COPY</span> ./shadowsocks/ /usr/local/shadowsocks/</span><br><span class="line"><span class="keyword">COPY</span> ./s.conf /usr/local/shadowsocks/conf/s.conf</span><br><span class="line"><span class="keyword">WORKDIR</span> /usr/local/shadowsocks/</span><br><span class="line"></span><br><span class="line"><span class="comment">#另一种运行方式</span></span><br><span class="line"><span class="keyword">ENTRYPOINT</span> ["python", "server.py"]</span><br><span class="line"></span><br><span class="line"><span class="comment">#运行</span></span><br><span class="line"><span class="comment">#sudo docker run -p 34567:34567 -v /data/conf/s.conf:/usr/local/shadowsocks/conf/s.conf  ssr -c conf/s.conf</span></span><br><span class="line"><span class="comment">#用-v将外部配置文件挂在到容器里，只能用文件夹挂载，只能是绝对路径</span></span><br><span class="line"><span class="comment">#错错错 -v s.conf:/usr/local/shadowsocks/s.conf  ssr -c s.conf  错错错</span></span><br></pre></td></tr></table></figure>
+<ol>
+<li>部署运行容器<br> 可以用自己构建的image为模板部署容器<br> docker run —restart=always —env password=qwerasd -p 8888:8888 ssr/alpine:1.0<br> —restart=always 系统重启后，docker也会自动重启容器。否则不会自动启动</li>
+</ol>
+<pre><code>  也可以从docker hub下载别人构建好的image
+  docker pull wordpress
+  docker run wordpress   可以直接run，如果本地没有对应的image则会从hub下载
+</code></pre><ol>
+<li><p>常用命令</p>
+<p>sudo docker images 查看有效的镜像</p>
+<p>sudo docker images  -a 查看系统中所有镜像</p>
+<p>sudo docker rmi xxx 删除ID为xxx镜像</p>
+<p>sudo docker rmi ssr/alpine:3.9 使用tag删除镜像</p>
+</li>
+</ol>
+<p>   sudo docker ps 查看运行中的容器</p>
+<p>   sudo docker ps -a 查看所有容器</p>
+<p>   sudo docker kill xxx 关闭ID为XXX容器</p>
+<p>   sudo docker rm xxx 删除ID为XXX容器</p>
+<p>   sudo docker run XXXX  运行容器</p>
+<h2 id="替换快速docker源"><a href="#替换快速docker源" class="headerlink" title="替换快速docker源"></a>替换快速docker源</h2><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 创建或修改 /etc/docker/daemon.json 文件，重启服务</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"registry-mirrors"</span> : [</span><br><span class="line">    <span class="string">"http://hub-mirror.c.163.com"</span></span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+       
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div style="color:#FC6423;">虽然很不要脸，但是还请您多多打赏 ^_^</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wepay.png" alt="ppj 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="ppj 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/docker/" rel="tag"># docker</a>
+          
+            <a href="/tags/ssr/" rel="tag"># ssr</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/5074/" rel="next" title="给软件加上数字签名">
+                <i class="fa fa-chevron-left"></i> 给软件加上数字签名
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/4205/" rel="prev" title="为Matlab添加好看的程序员字体">
+                为Matlab添加好看的程序员字体 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/me.jpg" alt="ppj">
+            
+              <p class="site-author-name" itemprop="name">ppj</p>
+              <p class="site-description motion-element" itemprop="description">海纳百川，有容乃大</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">59</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">105</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <span class="exturl" data-url="aHR0cHM6Ly9scHA3NzcuZ2l0ZWUuaW8vZGlhbmJhby8=" title="https://lpp777.gitee.io/dianbao/">电报机</span>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">1.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#替换快速docker源"><span class="nav-number">2.</span> <span class="nav-text">替换快速docker源</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PPJ原创博客</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <span class="exturl theme-link" data-url="aHR0cHM6Ly9oZXhvLmlv">Hexo</span> 强力驱动</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@7.1.2/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'dark'});
+    }
+  </script>
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.5.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.5.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.5.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.5.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: true,
+        notify: false,
+        appId: 'DBPspH0JVeKk8sxAjHYtXODh-gzGzoHsz',
+        appKey: 'HLutKP3fTGE90kRNxD3byBTO',
+        placeholder: '你有什么想说的吗?',
+        avatar:'wavatar',
+        meta:guest,
+        pageSize:'10' || 10,
+        visitor: false
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script type="text/javascript" src="/js/src/exturl.js?v=6.5.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

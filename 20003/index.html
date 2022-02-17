@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.5.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="mask-icon" href="/images/favicon.ico?v=6.5.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.5.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="项目的需要播放rtsp视频流，因此选择开源的ffmpeg作为解码开发包，并且要使用QT开发。照例，在开始之前先去GitHub上看一看有没有比较成熟的封装，果然找到了几个比较好用的。经过测试，它们都能解码rtsp视频流，但是画面的显示效果差别比较大，可能是因为不熟悉这些sdk的使用，写的demo太简单，没有加入正确的优化吧。下面依次简单介绍一下：">
+<meta name="keywords" content="QT,ffmpeg,vlc,rtsp,播放器,mpalyer,MVP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于QT的视频播放器">
+<meta property="og:url" content="https://www.openlinux.top/20003/index.html">
+<meta property="og:site_name" content="胖胖哒">
+<meta property="og:description" content="项目的需要播放rtsp视频流，因此选择开源的ffmpeg作为解码开发包，并且要使用QT开发。照例，在开始之前先去GitHub上看一看有没有比较成熟的封装，果然找到了几个比较好用的。经过测试，它们都能解码rtsp视频流，但是画面的显示效果差别比较大，可能是因为不熟悉这些sdk的使用，写的demo太简单，没有加入正确的优化吧。下面依次简单介绍一下：">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://images.videolan.org/images/libvlc_stack.png">
+<meta property="og:image" content="http://www.mplayerhq.hu/images/screenshots/kutfejek-01.jpg">
+<meta property="og:image" content="https://mpv.io/images/mpv-screenshot-34cd36ae.jpg">
+<meta property="og:updated_time" content="2022-02-17T07:31:32.182Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于QT的视频播放器">
+<meta name="twitter:description" content="项目的需要播放rtsp视频流，因此选择开源的ffmpeg作为解码开发包，并且要使用QT开发。照例，在开始之前先去GitHub上看一看有没有比较成熟的封装，果然找到了几个比较好用的。经过测试，它们都能解码rtsp视频流，但是画面的显示效果差别比较大，可能是因为不熟悉这些sdk的使用，写的demo太简单，没有加入正确的优化吧。下面依次简单介绍一下：">
+<meta name="twitter:image" content="https://images.videolan.org/images/libvlc_stack.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://www.openlinux.top/20003/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>基于QT的视频播放器 | 胖胖哒</title>
+  
+
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3e7dc8ac84df8794dd57fea74e0e6f95";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">胖胖哒</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <h1 class="site-subtitle" itemprop="description">PPJ的日志博客</h1>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.openlinux.top/20003/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ppj">
+      <meta itemprop="description" content="海纳百川，有容乃大">
+      <meta itemprop="image" content="/images/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖胖哒">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">基于QT的视频播放器
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+
+
+          
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20003/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/20003/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>项目的需要播放rtsp视频流，因此选择开源的ffmpeg作为解码开发包，并且要使用QT开发。照例，在开始之前先去GitHub上看一看有没有比较成熟的封装，果然找到了几个比较好用的。经过测试，它们都能解码rtsp视频流，但是画面的显示效果差别比较大，可能是因为不熟悉这些sdk的使用，写的demo太简单，没有加入正确的优化吧。下面依次简单介绍一下：</p>
+<a id="more"></a>
+<h1 id="原生的FFmpeg"><a href="#原生的FFmpeg" class="headerlink" title="原生的FFmpeg"></a>原生的FFmpeg</h1><p>原作者的文章在这里<span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0dhb2Rlcy9hcnRpY2xlL2RldGFpbHMvODM3OTY3MjQ=" title="https://blog.csdn.net/Gaodes/article/details/83796724">QT下使用ffmpeg播放视频范例<i class="fa fa-external-link"></i></span></p>
+<p>先看一下使用这个原生方案的效果吧。</p>
+<video width="100%" src="
+11.mp4" controls="controls">
+</video>
+
+<p>播放器中显示的视频都是mkv格式文件经过live555产生rtsp视频流，live555服务器部署在同一个局域网内，不存在网络延迟的情况。</p>
+<p>可以看到第一个和第四个视频画面是比较完整的，花屏的频率很低，但是只有第四个是流畅播放的，其他三个都存在人眼可见的卡顿。</p>
+<h1 id="QtAV-项目"><a href="#QtAV-项目" class="headerlink" title="QtAV 项目"></a>QtAV 项目</h1><p>项目地址<span class="exturl" data-url="aHR0cDovL3d3dy5xdGF2Lm9yZy8=" title="http://www.qtav.org/">基于Qt和FFmpeg的跨平台高性能音视频播放框架<i class="fa fa-external-link"></i></span></p>
+<p>使用这个框架编写的demo效果：</p>
+<video width="100%" src="
+22.mp4" controls="controls">
+</video>
+
+<p>可以看到和直接使用原生的FFmpeg效果差不多。但是它对FFmpeg和Qt widget封装的很好，使用很简便。对提高项目开发效率非常有利。</p>
+<h1 id="VLC-Qt-项目"><a href="#VLC-Qt-项目" class="headerlink" title="VLC-Qt 项目"></a>VLC-Qt 项目</h1><p>项目地址<span class="exturl" data-url="aHR0cHM6Ly92bGMtcXQudGFuby5zaS8=" title="https://vlc-qt.tano.si/">Quickly create a fully functional cross-platform media player<i class="fa fa-external-link"></i></span>。使用方法也是非常方便，封装的VlcWidgetVideo类可以方便的显示和控制视频播放。我按照作者给出的例子<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3ZsYy1xdC9leGFtcGxlcy90cmVlL21hc3Rlci9zaW1wbGUtcGxheWVy" title="https://github.com/vlc-qt/examples/tree/master/simple-player">vlc-qt/examples<i class="fa fa-external-link"></i></span>写的demo的效果如下：</p>
+<video width="100%" src="33.mp4" controls="controls">
+</video>
+
+<p>可以看到，这是目前效果最好的，画面基本没有花屏，每个都能流畅播放，也达到了项目需求的效果。</p>
+<p>可能是因为该框架是基于vlc封装的吧，vlc是在ffmpeg编解码库的基础上开发的框架，加入了很多自己的模块，有自己的封装与优化，所以才会更能自动选择最佳的解码方式吧。</p>
+<h1 id="常用的开源编码解码库"><a href="#常用的开源编码解码库" class="headerlink" title="常用的开源编码解码库"></a>常用的开源编码解码库</h1><h2 id="FFmpeg"><a href="#FFmpeg" class="headerlink" title="FFmpeg"></a>FFmpeg</h2><p>项目地址<span class="exturl" data-url="aHR0cHM6Ly9mZm1wZWcub3Jn" title="https://ffmpeg.org">A complete, cross-platform solution to record, convert and stream audio and video.<i class="fa fa-external-link"></i></span></p>
+<p>这个应该算是几乎所有播放器的根基了，音视频的编码解码都要依赖或部分依赖这个框架，应用非常广泛。像是暴风影音、QQ影音、KMPlayer等等都是基于FFmpeg库的。其他一部分基于此开发的播放器或项目可以在这里看到 <span class="exturl" data-url="aHR0cHM6Ly90cmFjLmZmbXBlZy5vcmcvd2lraS9Qcm9qZWN0cw==" title="https://trac.ffmpeg.org/wiki/Projects">Projects incorporate from FFmpeg<i class="fa fa-external-link"></i></span></p>
+<p>这个框架的说明文档也很详细，如果要深入学习视频编码解码的话，建议学习这个。</p>
+<h2 id="Libav"><a href="#Libav" class="headerlink" title="Libav"></a>Libav</h2><p>项目地址<span class="exturl" data-url="aHR0cHM6Ly9saWJhdi5vcmc=" title="https://libav.org">Libav provides cross-platform tools and libraries to convert, manipulate and stream a wide range of multimedia formats and protocols.<i class="fa fa-external-link"></i></span></p>
+<p>Libav是FFmpeg的一个分支吧（程序员也有小情绪的，一言不合就另起炉灶），功能和用法几乎一样。他和FFmpeg的基础都是这几个库</p>
+<ul>
+<li>libavcodec provides implementation of a wider range of codecs.</li>
+<li>libavformat implements streaming protocols, container formats and basic I/O access.</li>
+<li>libavutil includes hashers, decompressors and miscellaneous utility functions.</li>
+<li>libavfilter provides a mean to alter decoded Audio and Video through chain of filters.</li>
+<li>libavdevice provides an abstraction to access capture and playback devices.</li>
+<li>libswresample implements audio mixing and resampling routines.</li>
+<li>libswscale implements color conversion and scaling routines.</li>
+</ul>
+<p>这几个库应该是两个项目共同维护的吧😂</p>
+<h2 id="VLC"><a href="#VLC" class="headerlink" title="VLC"></a>VLC</h2><p>项目地址<span class="exturl" data-url="aHR0cHM6Ly93aWtpLnZpZGVvbGFuLm9yZy9WTENfRGV2ZWxvcGVyc19Db3JuZXIv" title="https://wiki.videolan.org/VLC_Developers_Corner/">VLC Developers Corner<i class="fa fa-external-link"></i></span></p>
+<p>VLC是一个强大的社区VideoLAN创作的视频播放器，相信用过这个播放器的人肯定不少，尤其是在Linux平台上。VLC的核心就是libvlc库，这个库也是VideoLAN其他应用软件的基础。<br><img src="https://images.videolan.org/images/libvlc_stack.png" alt="libvlc"></p>
+<blockquote>
+<p>There are some very important dependencies: gettext (NLS) for international support (required), libdvbpsi for MPEG-TS files and streams support, libmad for MP3 audio decoding, libmpeg2 for MPEG1 and MPEG2 video support, FFmpeg or libav (libavcodec, libavformat, libpostproc, libswscale and optionally libavio) for MPEG4 and most other audio and video codecs, and many file formats, liba52 for Dolby (AC3) sound, dvdread and dvdnav for DVD playback, live555 for RTSP stream playback, etc.</p>
+<p>For audio output, you will need probably alsa-lib (on Linux) and/or libpulse (for PulseAudio). For video output, you will normally need XCB/XVideo and/or OpenGL/GLX. And Qt4 is required to get the GUI support.</p>
+</blockquote>
+<p>从官网的Wiki上看，VLC项目也是用到了FFmpeg作为大部分格式的解码器，同时也有自己的解码器。我觉得VLC的播放效果比FFmpeg要好，应该是因为在FFmpeg的基础上有所优化吧。</p>
+<p>目前直接从官网下载的程序安装文件是不带sdk的，需要选择平台后下载压缩包（7z Zip），压缩包里面都带有sdk。也可以直接去<span class="exturl" data-url="ZnRwOi8vZnRwLnZpZGVvbGFuLm9yZy9wdWIvdmlkZW9sYW4vdmxjLw==" title="ftp://ftp.videolan.org/pub/videolan/vlc/">归档库下载<i class="fa fa-external-link"></i></span>，里面安装包、压缩包都有。</p>
+<h2 id="MPlayer"><a href="#MPlayer" class="headerlink" title="MPlayer"></a>MPlayer</h2><p>项目地址<span class="exturl" data-url="aHR0cDovL3d3dy5tcGxheWVyaHEuaHUv" title="http://www.mplayerhq.hu/">MPlayer播放器<i class="fa fa-external-link"></i></span></p>
+<p>Linux用户应该不会对mplayer陌生，这是一个优秀的命令行播放器。它号称是这个星球上最强的播放器，没有之一😂<br><img src="http://www.mplayerhq.hu/images/screenshots/kutfejek-01.jpg" alt="MPlayer"><br>但是它不仅仅只是一个命令行播放器，它有非常多的GUI，在Linux、Windows、Mac OS上都有非常漂亮的界面，可以在这里看到官网收集到的一些播放器前端<span class="exturl" data-url="aHR0cDovL3d3dy5tcGxheWVyaHEuaHUvZGVzaWduNy9wcm9qZWN0cy5odG1s" title="http://www.mplayerhq.hu/design7/projects.html">MPlayer Frontends<i class="fa fa-external-link"></i></span></p>
+<p>它同样也用到了FFmpeg</p>
+<h2 id="MPV"><a href="#MPV" class="headerlink" title="MPV"></a>MPV</h2><p>项目地址<span class="exturl" data-url="aHR0cHM6Ly9tcHYuaW8v" title="https://mpv.io/">mpv is a fork of mplayer2 and MPlayer. It shares some features with the former projects while introducing many more.<i class="fa fa-external-link"></i></span></p>
+<p>从简介可以看出，mpv player是MPlayer的一个分支，同样是一个命令行播放器。但是MPV的播放窗口更美观，功能更丰富，特别像是个GUI了，可以看一下它的播放界面<img src="https://mpv.io/images/mpv-screenshot-34cd36ae.jpg" alt="mpv">上面有可以点击的按钮，对于不熟悉用键盘操控的人来说，可以非常方便的用鼠标控制播放。<br>大名鼎鼎的国产Linux发行版-Deepin的播放器Deepin movie就是使用的MPV和FFmpeg在QT5上开发的。还有moonplayer也是基于MPV的，其他采用MPV库的播放器可以在这里看到<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL21wdi1wbGF5ZXIvbXB2L3dpa2kvQXBwbGljYXRpb25zLXVzaW5nLW1wdg==" title="https://github.com/mpv-player/mpv/wiki/Applications-using-mpv">Applications using mpv<i class="fa fa-external-link"></i></span>。这里面一个有意思的播放器MPV-EASY Player，配置简单，并且非常接近原生的体验。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+       
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div style="color:#FC6423;">虽然很不要脸，但是还请您多多打赏 ^_^</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wepay.png" alt="ppj 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="ppj 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/QT/" rel="tag"># QT</a>
+          
+            <a href="/tags/ffmpeg/" rel="tag"># ffmpeg</a>
+          
+            <a href="/tags/vlc/" rel="tag"># vlc</a>
+          
+            <a href="/tags/rtsp/" rel="tag"># rtsp</a>
+          
+            <a href="/tags/mpalyer/" rel="tag"># mpalyer</a>
+          
+            <a href="/tags/MVP/" rel="tag"># MVP</a>
+          
+            <a href="/tags/播放器/" rel="tag"># 播放器</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/14373/" rel="next" title="在局域网内搭建代理服务器上网">
+                <i class="fa fa-chevron-left"></i> 在局域网内搭建代理服务器上网
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/39090/" rel="prev" title="在树莓派上使用Gogs搭建Git服务">
+                在树莓派上使用Gogs搭建Git服务 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/me.jpg" alt="ppj">
+            
+              <p class="site-author-name" itemprop="name">ppj</p>
+              <p class="site-description motion-element" itemprop="description">海纳百川，有容乃大</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">59</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">105</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <span class="exturl" data-url="aHR0cHM6Ly9scHA3NzcuZ2l0ZWUuaW8vZGlhbmJhby8=" title="https://lpp777.gitee.io/dianbao/">电报机</span>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#原生的FFmpeg"><span class="nav-number">1.</span> <span class="nav-text">原生的FFmpeg</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#QtAV-项目"><span class="nav-number">2.</span> <span class="nav-text">QtAV 项目</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#VLC-Qt-项目"><span class="nav-number">3.</span> <span class="nav-text">VLC-Qt 项目</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#常用的开源编码解码库"><span class="nav-number">4.</span> <span class="nav-text">常用的开源编码解码库</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#FFmpeg"><span class="nav-number">4.1.</span> <span class="nav-text">FFmpeg</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Libav"><span class="nav-number">4.2.</span> <span class="nav-text">Libav</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VLC"><span class="nav-number">4.3.</span> <span class="nav-text">VLC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MPlayer"><span class="nav-number">4.4.</span> <span class="nav-text">MPlayer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MPV"><span class="nav-number">4.5.</span> <span class="nav-text">MPV</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PPJ原创博客</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <span class="exturl theme-link" data-url="aHR0cHM6Ly9oZXhvLmlv">Hexo</span> 强力驱动</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@7.1.2/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'dark'});
+    }
+  </script>
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.5.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.5.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.5.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.5.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: true,
+        notify: false,
+        appId: 'DBPspH0JVeKk8sxAjHYtXODh-gzGzoHsz',
+        appKey: 'HLutKP3fTGE90kRNxD3byBTO',
+        placeholder: '你有什么想说的吗?',
+        avatar:'wavatar',
+        meta:guest,
+        pageSize:'10' || 10,
+        visitor: false
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script type="text/javascript" src="/js/src/exturl.js?v=6.5.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

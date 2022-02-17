@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.5.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="mask-icon" href="/images/favicon.ico?v=6.5.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.5.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="项目需要用RTP/RTSP做视频直播，为了对RTSP协议有个直观的认识，我利用Wirshark和Npcap对RTSP数据包进行抓包分析。">
+<meta name="keywords" content="Wireshark,WinPcap,Npcap,RTSP,RTP,抓包,Loopback,mpeg_packets_dump.lua,h264_export.lua">
+<meta property="og:type" content="article">
+<meta property="og:title" content="wireshark抓包rtsp">
+<meta property="og:url" content="https://www.openlinux.top/12892/index.html">
+<meta property="og:site_name" content="胖胖哒">
+<meta property="og:description" content="项目需要用RTP/RTSP做视频直播，为了对RTSP协议有个直观的认识，我利用Wirshark和Npcap对RTSP数据包进行抓包分析。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://www.openlinux.top/12892/rtsp.png">
+<meta property="og:image" content="https://www.openlinux.top/12892/h264.png">
+<meta property="og:image" content="https://www.openlinux.top/12892/RTP.png">
+<meta property="og:image" content="https://www.openlinux.top/12892/33.png">
+<meta property="og:image" content="https://www.openlinux.top/12892/rtp_header.png">
+<meta property="og:image" content="https://www.openlinux.top/12892/payload.png">
+<meta property="og:updated_time" content="2022-02-17T07:31:31.909Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="wireshark抓包rtsp">
+<meta name="twitter:description" content="项目需要用RTP/RTSP做视频直播，为了对RTSP协议有个直观的认识，我利用Wirshark和Npcap对RTSP数据包进行抓包分析。">
+<meta name="twitter:image" content="https://www.openlinux.top/12892/rtsp.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://www.openlinux.top/12892/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>wireshark抓包rtsp | 胖胖哒</title>
+  
+
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3e7dc8ac84df8794dd57fea74e0e6f95";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">胖胖哒</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <h1 class="site-subtitle" itemprop="description">PPJ的日志博客</h1>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.openlinux.top/12892/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ppj">
+      <meta itemprop="description" content="海纳百川，有容乃大">
+      <meta itemprop="image" content="/images/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖胖哒">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">wireshark抓包rtsp
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+
+
+          
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/12892/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/12892/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>项目需要用RTP/RTSP做视频直播，为了对RTSP协议有个直观的认识，我利用Wirshark和Npcap对RTSP数据包进行抓包分析。</p>
+<a id="more"></a>
+<h1 id="工具软件简介"><a href="#工具软件简介" class="headerlink" title="工具软件简介"></a>工具软件简介</h1><h2 id="驱动"><a href="#驱动" class="headerlink" title="驱动"></a>驱动</h2><p><span class="exturl" data-url="aHR0cHM6Ly93d3cud2lucGNhcC5vcmcv" title="https://www.winpcap.org/">WinPcap<i class="fa fa-external-link"></i></span> 和 <span class="exturl" data-url="aHR0cHM6Ly9ubWFwLm9yZy9ucGNhcC8=" title="https://nmap.org/npcap/">Npcap<i class="fa fa-external-link"></i></span>都是工业级的网络抓包工具，网络抓包基本都会用到。</p>
+<p>由于很长一段时间WinPcap没有更新了，于是Npcap在它的基础上被开发出来 （但是WinPcap最近又更新了）。目前来看，WinPcap不能抓取本地回环地址（Loopback Address），即 127.0.0.1，Npcap可以。</p>
+<h2 id="前端"><a href="#前端" class="headerlink" title="前端"></a>前端</h2><p><span class="exturl" data-url="aHR0cHM6Ly93d3cud2lyZXNoYXJrLm9yZy8=" title="https://www.wireshark.org/">Wireshark<i class="fa fa-external-link"></i></span>是非常好用的网络协议分析软件，它可以把Npcap抓取到的数据包按照各种协议解析，可视化非常棒。</p>
+<h1 id="操作过程"><a href="#操作过程" class="headerlink" title="操作过程"></a>操作过程</h1><h2 id="建立rtsp服务器"><a href="#建立rtsp服务器" class="headerlink" title="建立rtsp服务器"></a>建立rtsp服务器</h2><p>我用了两种方式：</p>
+<ol>
+<li>使用Live555服务器。  “LIVE555 Media Server”是一个开源的RTSP服务器，使用很简单。单文件程序，将视频文件和程序放到同一个文件夹，运行程序就可以通过rtsp协议访问了，例如：rtsp://192.168.1.3:8554/demo.mp4。这种方式可以在同一个局域网中访问。</li>
+</ol>
+<ol>
+<li>使用VLC播放器的流服务。 具体为选择 【媒体-&gt;流-&gt; 添加文件-&gt; 串流-&gt; 添加RTSP-&gt; 修改端口路径-&gt; 完善sdp地址】,最后得到一串这样的字符 <code>:sout=#rtp{sdp=rtsp://localhost:8554/demo} :no-sout-all :sout-keep</code> 。这种方式由于防火墙的限制，只能在本机使用。</li>
+</ol>
+<h2 id="抓取数据包"><a href="#抓取数据包" class="headerlink" title="抓取数据包"></a>抓取数据包</h2><blockquote>
+<p>使用VLC流服务建立的rtsp服务器的方式。 VLC串流开始后，在打开一个VLC播放器，打开网络串流rtsp://localhost:8554/ 就会看到视频了。但注意，由于是本地回环地址抓包，因此Wireshark选择 <code>Npcap Loopback Adapter</code> 网卡输入(安装完Npcap会生成这个网卡)</p>
+</blockquote>
+<p>这里只介绍使用 LIVE555 Media Server 的方式。打开Wireshark，选择电脑网卡，进入主界面会看到好多ip数据包，我们需要挑选出有用的。在过滤输入框内输入<code>ip.addr==192.168.1.3</code>（192.168.1.3是rtsp服务器的ip），这样就只会显示来自rtsp服务器的数据包。<br>然后用VLC打开网络串流rtsp://192.168.1.3:8554/demo.mp4,就会抓取到rtsp数据包了。<br><img src="/12892/rtsp.png"><br>可以看到，开始建立链接的过程中，类似tcp三次握手的方式，相互确认。其中有一个步骤是服务器向客户端发送sdp描述文件<code>RTSP/SDP协议</code>。查看具体信息会发现有<code>Media Description, name and address (m): video 0 RTP/AVP 96</code> 和 <code>Media Description, name and address (m): audio 0 RTP/AVP 97</code> 分别表示视频流为负载96，音频流为负载97。这和RTP的SDP文件是一样的。也就说明了，RTSP协议会自动发送SDP文件，不用再去手动写一份SDP文件然后用VLC打开。</p>
+<p>再往下看，会看到传输的数据，有两种负载类型96和97，从SDP描述信息已经知道96为视频流，所以可以把RTP包进一步解包，然后用H264解码；97为音频流，由于没有找到音频的解码协议，因此没有对RTP包进一步解码。<br><img src="/12892/h264.png"></p>
+<p>如果没有看到如上的结果，而是显示的是UDP协议，需要对UDP进一步解码，选中一个UDP包，右键选择解码为RTP即可。<br><img src="/12892/RTP.png"></p>
+<p>从上面的结果可以看出，RTSP是靠RTSP/SDP传输SDP描述文件，靠RTP协议传输音视频数据，靠RTCP进行控制。</p>
+<h1 id="扩展-RTP-MPEG-TS-包"><a href="#扩展-RTP-MPEG-TS-包" class="headerlink" title="扩展 RTP MPEG_TS 包"></a>扩展 RTP MPEG_TS 包</h1><p>RTP服务器一般是直接把h264数据或ac3数据发送出去，客户端根据负载类型对数据进行解码。一般直播会选择这种方式，实时性好。</p>
+<p>RTP还有另一种方式发送数据，就是把音频和视频封装到TS容器，然后再发送mpeg ts包。这样实际就是发送的一个完整的视频文件了,只是时间只有几秒而已。<br><img src="/12892/33.png"></p>
+<p>可以把其保存到本地视频文件。保存为本地视频文件具体操作可参考<span class="exturl" data-url="aHR0cHM6Ly93aWtpLndpcmVzaGFyay5vcmcvbXBlZ19kdW1wLmx1YQ==" title="https://wiki.wireshark.org/mpeg_dump.lua">wireshark wiki<i class="fa fa-external-link"></i></span></p>
+<blockquote>
+<p>Wireshark extension to dump MPEG2 transport stream packets to file, removing the network headers and leaving just an MPEG2 transport stream. To use this script:</p>
+<ol>
+<li>Download the attachment mpeg_packets_dump.lua</li>
+<li>Save it in the Wireshark home directory e.g. c:\Program Files\Wireshark — as “mpeg_packets_dump.lua”</li>
+<li>Edit init.lua in the Wireshark home directory and add the following line: dofile(“mpeg_packets_dump.lua”)</li>
+<li>Restart Wireshark to add the extension</li>
+<li>Capture some traffic which includes some MPEG transport packets, for example, it has been tested with MPEG transmitted via UDP multicast.</li>
+<li>Stop the capture, and select Tools -&gt; Dump MPEG TS Packets</li>
+<li>Enter the file where the mpeg stream should be saved.</li>
+<li>In order to select only one of many streams, enter a wireshark filter — expression, or you can leave the filter blank.</li>
+<li>Press okay. Any MPEG packets in the current capture which were detected by the MPEG dissector and that match your filter will be dumped to your output file</li>
+</ol>
+</blockquote>
+<p>RTP MPEG_TS的方式是不需要SDP描述文件的，SDP描述文件的目的是告诉客户端对哪种类型的负载采用哪种解码方式。看看RTP报头可以发现</p>
+<img src="/12892/rtp_header.png">
+<p>RTP协议用一个7bit数据表示负载类型，因此一共可以表示128种。具体可看<span class="exturl" data-url="aHR0cHM6Ly9lbi53aWtpcGVkaWEub3JnL3dpa2kvUlRQX3BheWxvYWRfZm9ybWF0cw==" title="https://en.wikipedia.org/wiki/RTP_payload_formats">RTP_payload_formats wiki<i class="fa fa-external-link"></i></span></p>
+<img src="/12892/payload.png">
+<p>可以看到有一些类型是固定的。正如上图显示的负载类型为33，就表示这个RTP包的内容为封装为TS的音视频数据，客户端就可以按照mpeg ts解码了。如果使用的是96以上的负载类型，就需要写一个sdp文件告诉客户端怎么解码了。</p>
+<h1 id="ffmpeg命令行"><a href="#ffmpeg命令行" class="headerlink" title="ffmpeg命令行"></a>ffmpeg命令行</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>提取视频：</span><br><span class="line">ffmpeg -i demo.mp4 -vcodec copy -an video.mp4</span><br><span class="line"><span class="meta">#</span>提取音频：</span><br><span class="line">ffmpeg -i demo.mp4 -acodec copy -vn Audio.mp3</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>rtp 推流</span><br><span class="line">ffmpeg -re -i video.mp4 -vcodec copy -f rtp rtp://127.0.0.1:1234</span><br><span class="line">ffmpeg -re -i Audio.mp3 -acodec copy -f rtp rtp://127.0.0.1:1235</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>rtp mpegts 推流</span><br><span class="line">ffmpeg -re -i demo.mp4 -vcodec copy -f rtp_mpegts rtp://127.0.0.1:1236</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 推流到rtsp服务器</span><br><span class="line">ffmpeg -re -i demo.mp4 -rtsp_transport tcp -vcodec copy -f rtsp rtsp://rtsp/test</span><br><span class="line"></span><br><span class="line">ffmpeg -re -i demo.mp4 -rtsp_transport udp -vcodec copy -f rtsp rtsp://rtsp/test</span><br></pre></td></tr></table></figure>
+<h1 id="wireshark插件"><a href="#wireshark插件" class="headerlink" title="wireshark插件"></a>wireshark插件</h1><p>在抓包RTP过程中，常常需要把视频数据保存到本地，我使用到了两个非常好用的插件，可以满足一般需求。分别是 h264_export.lua 和 mpeg_packets_dump.lua 。</p>
+<p>安装方式，进入wireshark根目录，找到<code>init.lua</code>文件，在最后面添加两行<code>dofile(&quot;mpeg_packets_dump.lua&quot;)</code> <code>dofile(&quot;h264_export.lua&quot;)</code> ，然后把h264_export.lua 和 mpeg_packets_dump.lua文件放到根目录下即可。重启软件就能加载插件了。</p>
+<ol>
+<li><p>h264_export.lua 把H264包保存为本地 .h264视频文件[项目地址] (<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3NldWR1dC9oMjY0X2V4cG9ydA==" title="https://github.com/seudut/h264_export">https://github.com/seudut/h264_export<i class="fa fa-external-link"></i></span>)</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br><span class="line">443</span><br><span class="line">444</span><br><span class="line">445</span><br><span class="line">446</span><br><span class="line">447</span><br><span class="line">448</span><br><span class="line">449</span><br><span class="line">450</span><br><span class="line">451</span><br><span class="line">452</span><br><span class="line">453</span><br><span class="line">454</span><br><span class="line">455</span><br><span class="line">456</span><br><span class="line">457</span><br><span class="line">458</span><br><span class="line">459</span><br><span class="line">460</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Dump RTP h.264 payload to raw h.264 file (*.264)  </span></span><br><span class="line"><span class="comment">-- According to RFC3984 to dissector H264 payload of RTP to NALU, and write it  </span></span><br><span class="line"><span class="comment">-- to from&lt;sourceIp_sourcePort&gt;to&lt;dstIp_dstPort&gt;.264 file. By now, we support single NALU,  </span></span><br><span class="line"><span class="comment">-- STAP-A and FU-A format RTP payload for H.264.  </span></span><br><span class="line"><span class="comment">-- You can access this feature by menu "Tools-&gt;Export H264 to file [HQX's plugins]"  </span></span><br><span class="line"><span class="comment">-- Author: Huang Qiangxiong (qiangxiong.huang@gmail.com)  </span></span><br><span class="line"><span class="comment">-- change log:  </span></span><br><span class="line"><span class="comment">--      2012-03-13  </span></span><br><span class="line"><span class="comment">--          Just can play  </span></span><br><span class="line"><span class="comment">--      2012-04-28  </span></span><br><span class="line"><span class="comment">--          Add local to local function, and add [local bit = require("bit")] to prevent  </span></span><br><span class="line"><span class="comment">--          bit recleared in previous file.  </span></span><br><span class="line"><span class="comment">--      2013-07-11  </span></span><br><span class="line"><span class="comment">--          Add sort RTP and drop uncompleted frame option.  </span></span><br><span class="line"><span class="comment">--      2013-07-19  </span></span><br><span class="line"><span class="comment">--          Do nothing when tap is triggered other than button event.  </span></span><br><span class="line"><span class="comment">--          Add check for first or last packs lost of one frame.  </span></span><br><span class="line"><span class="comment">--      2014-10-23  </span></span><br><span class="line"><span class="comment">--          Fixed bug about print a frame.nalu_type error.  </span></span><br><span class="line"><span class="comment">--      2014-11-07  </span></span><br><span class="line"><span class="comment">--          Add support for Lua 5.2(&gt;1.10.1) and 5.1(&lt;=1.10.1).   </span></span><br><span class="line"><span class="comment">--          Change range:string() to range:raw().  </span></span><br><span class="line"><span class="comment">--          Change h264_f.value to h264_f.range:bytes() because of wireshark lua bug.  </span></span><br><span class="line"><span class="comment">--      2015-06-03  </span></span><br><span class="line"><span class="comment">--          Fixed bug that if ipv6 address is using the file will not generated.(we replace ':' to '.')  </span></span><br><span class="line"><span class="comment">--      2017-08-18 </span></span><br><span class="line"><span class="comment">--          Fixed bug on Mac with Wireshark 2.4.1, that error (Permission denied) happens when writing to file. </span></span><br><span class="line"><span class="comment">--          Add check when open file, if failed, trying home directory instead of default directory </span></span><br><span class="line"><span class="comment">--          (/Application/Wireshark.app/)</span></span><br><span class="line"><span class="comment">------------------------------------------------------------------------------------------------  </span></span><br><span class="line"><span class="keyword">do</span>  </span><br><span class="line">    <span class="comment">--local bit = require("bit") -- only work before 1.10.1  </span></span><br><span class="line">    <span class="comment">--local bit = require("bit32") -- only work after 1.10.1 (only support in Lua 5.2)  </span></span><br><span class="line">    <span class="keyword">local</span> version_str = <span class="built_in">string</span>.<span class="built_in">match</span>(<span class="built_in">_VERSION</span>, <span class="string">"%d+[.]%d*"</span>)  </span><br><span class="line">    <span class="keyword">local</span> version_num = version_str <span class="keyword">and</span> <span class="built_in">tonumber</span>(version_str) <span class="keyword">or</span> <span class="number">5.1</span>  </span><br><span class="line">    <span class="keyword">local</span> bit = (version_num &gt;= <span class="number">5.2</span>) <span class="keyword">and</span> <span class="built_in">require</span>(<span class="string">"bit32"</span>) <span class="keyword">or</span> <span class="built_in">require</span>(<span class="string">"bit"</span>)  </span><br><span class="line">  </span><br><span class="line">    <span class="comment">-- for geting h264 data (the field's value is type of ByteArray)  </span></span><br><span class="line">    <span class="keyword">local</span> f_h264 = Field.new(<span class="string">"h264"</span>)   </span><br><span class="line">    <span class="keyword">local</span> f_rtp = Field.new(<span class="string">"rtp"</span>)   </span><br><span class="line">    <span class="keyword">local</span> f_rtp_seq = Field.new(<span class="string">"rtp.seq"</span>)  </span><br><span class="line">    <span class="keyword">local</span> f_rtp_timestamp = Field.new(<span class="string">"rtp.timestamp"</span>)  </span><br><span class="line">    <span class="keyword">local</span> nalu_type_list = &#123;  </span><br><span class="line">        [<span class="number">0</span>] = <span class="string">"Unspecified"</span>,  </span><br><span class="line">        [<span class="number">1</span>] = <span class="string">"P/B_slice"</span>,  </span><br><span class="line">        [<span class="number">2</span>] = <span class="string">"P/B_A"</span>,  </span><br><span class="line">        [<span class="number">3</span>] = <span class="string">"P/B_B"</span>,  </span><br><span class="line">        [<span class="number">4</span>] = <span class="string">"P/B_C"</span>,  </span><br><span class="line">        [<span class="number">5</span>] = <span class="string">"I_slice"</span>,  </span><br><span class="line">        [<span class="number">6</span>] = <span class="string">"SEI"</span>,  </span><br><span class="line">        [<span class="number">7</span>] = <span class="string">"SPS"</span>,  </span><br><span class="line">        [<span class="number">8</span>] = <span class="string">"PPS"</span>,  </span><br><span class="line">        [<span class="number">9</span>] = <span class="string">"AUD"</span>,  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">    <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">get_enum_name</span><span class="params">(list, index)</span></span>  </span><br><span class="line">        <span class="keyword">local</span> value = list[index]  </span><br><span class="line">        <span class="keyword">return</span> value <span class="keyword">and</span> value <span class="keyword">or</span> <span class="string">"Unknown"</span>  </span><br><span class="line">    <span class="keyword">end</span>  </span><br><span class="line">  </span><br><span class="line">    <span class="comment">-- menu action. When you click "Tools-&gt;Export H264 to file [HQX's plugins]" will run this function  </span></span><br><span class="line">    <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">export_h264_to_file</span><span class="params">()</span></span>  </span><br><span class="line">        <span class="comment">-- window for showing information  </span></span><br><span class="line">        <span class="keyword">local</span> tw = TextWindow.new(<span class="string">"Export H264 to File Info Win"</span>)  </span><br><span class="line">        <span class="comment">--local pgtw = ProgDlg.new("Export H264 to File Process", "Dumping H264 data to file...")  </span></span><br><span class="line">        <span class="keyword">local</span> pgtw;  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">-- add message to information window  </span></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">twappend</span><span class="params">(str)</span></span>  </span><br><span class="line">            tw:append(str)  </span><br><span class="line">            tw:append(<span class="string">"\n"</span>)  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">-- running first time for counting and finding sps+pps, second time for real saving  </span></span><br><span class="line">        <span class="keyword">local</span> first_run = <span class="literal">true</span>   </span><br><span class="line">        <span class="comment">-- variable for storing rtp stream and dumping parameters  </span></span><br><span class="line">        <span class="keyword">local</span> stream_infos = <span class="literal">nil</span>  </span><br><span class="line">        <span class="comment">-- drop_uncompleted_frame  </span></span><br><span class="line">        <span class="keyword">local</span> drop_uncompleted_frame = <span class="literal">false</span>  </span><br><span class="line">        <span class="comment">-- max frame buffer size  </span></span><br><span class="line">        <span class="keyword">local</span> MAX_FRAME_NUM = <span class="number">3</span>  </span><br><span class="line">  </span><br><span class="line">        <span class="comment">-- trigered by all h264 packats  </span></span><br><span class="line">        <span class="keyword">local</span> my_h264_tap = Listener.new(tap, <span class="string">"h264"</span>)  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">-- get rtp stream info by src and dst address  </span></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">get_stream_info</span><span class="params">(pinfo)</span></span>  </span><br><span class="line">            <span class="keyword">local</span> key = <span class="string">"from_"</span> .. <span class="built_in">tostring</span>(pinfo.src) .. <span class="string">"_"</span> .. <span class="built_in">tostring</span>(pinfo.src_port) .. <span class="string">"to"</span> .. <span class="built_in">tostring</span>(pinfo.dst) .. <span class="string">"_"</span> .. <span class="built_in">tostring</span>(pinfo.dst_port) .. (drop_uncompleted_frame <span class="keyword">and</span> <span class="string">"_dropped"</span> <span class="keyword">or</span> <span class="string">"_all"</span>)  </span><br><span class="line">            key = key:<span class="built_in">gsub</span>(<span class="string">":"</span>, <span class="string">"."</span>)  </span><br><span class="line">            <span class="keyword">local</span> stream_info = stream_infos[key]  </span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> stream_info <span class="keyword">then</span> <span class="comment">-- if not exists, create one  </span></span><br><span class="line">                stream_info = &#123; &#125;  </span><br><span class="line">                stream_info.filename = key.. <span class="string">".264"</span>  </span><br><span class="line">                stream_info.file, err= <span class="built_in">io</span>.<span class="built_in">open</span>(stream_info.filename, <span class="string">"wb"</span>)  </span><br><span class="line">                <span class="keyword">if</span> stream_info.file == <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">                    twappend(<span class="string">"*** Error - Could not open file: "</span> .. err .. <span class="string">"\n"</span>)</span><br><span class="line">                    twappend(<span class="string">"Trying the home directory... \n"</span>)</span><br><span class="line">                    stream_info.file, err= <span class="built_in">io</span>.<span class="built_in">open</span>( <span class="built_in">os</span>.<span class="built_in">getenv</span>(<span class="string">"HOME"</span>) .. <span class="string">"/"</span> .. stream_info.filename, <span class="string">"wb"</span>)  </span><br><span class="line">                    <span class="keyword">if</span> stream_info.file == <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">                        twappend(<span class="string">"*** Error - :"</span> .. err .. <span class="string">" \n"</span>)</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                        twappend(<span class="string">"*** Success - Open file : "</span> .. <span class="built_in">os</span>.<span class="built_in">getenv</span>(<span class="string">"HOME"</span>) .. <span class="string">"/"</span> .. stream_info.filename .. <span class="string">" \n"</span>)</span><br><span class="line">                    <span class="keyword">end</span></span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">                stream_info.counter = <span class="number">0</span> <span class="comment">-- counting h264 total NALUs  </span></span><br><span class="line">                stream_info.counter2 = <span class="number">0</span> <span class="comment">-- for second time running  </span></span><br><span class="line">                stream_infos[key] = stream_info  </span><br><span class="line">                twappend(<span class="string">"Ready to export H.264 data (RTP from "</span> .. <span class="built_in">tostring</span>(pinfo.src) .. <span class="string">":"</span> .. <span class="built_in">tostring</span>(pinfo.src_port)   </span><br><span class="line">                         .. <span class="string">" to "</span> .. <span class="built_in">tostring</span>(pinfo.dst) .. <span class="string">":"</span> .. <span class="built_in">tostring</span>(pinfo.dst_port) .. <span class="string">" to file:\n         ["</span> .. stream_info.filename .. <span class="string">"] ...\n"</span>)  </span><br><span class="line">            <span class="keyword">end</span>  </span><br><span class="line">            <span class="keyword">return</span> stream_info  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">-- write a NALU or part of NALU to file.  </span></span><br><span class="line">        <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">real_write_to_file</span><span class="params">(stream_info, str_bytes, begin_with_nalu_hdr)</span></span>  </span><br><span class="line">            <span class="keyword">if</span> first_run <span class="keyword">then</span>  </span><br><span class="line">                stream_info.counter = stream_info.counter + <span class="number">1</span>  </span><br><span class="line">                  </span><br><span class="line">                <span class="keyword">if</span> begin_with_nalu_hdr <span class="keyword">then</span>  </span><br><span class="line">                    <span class="comment">-- save SPS or PPS  </span></span><br><span class="line">                    <span class="keyword">local</span> nalu_type = bit.band(str_bytes:<span class="built_in">byte</span>(<span class="number">0</span>,<span class="number">1</span>), <span class="number">0x1F</span>)  </span><br><span class="line">                    <span class="keyword">if</span> <span class="keyword">not</span> stream_info.sps <span class="keyword">and</span> nalu_type == <span class="number">7</span> <span class="keyword">then</span>  </span><br><span class="line">                        stream_info.sps = str_bytes  </span><br><span class="line">                    <span class="keyword">elseif</span> <span class="keyword">not</span> stream_info.pps <span class="keyword">and</span> nalu_type == <span class="number">8</span> <span class="keyword">then</span>  </span><br><span class="line">                        stream_info.pps = str_bytes  </span><br><span class="line">                    <span class="keyword">end</span>  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">                  </span><br><span class="line">            <span class="keyword">else</span> <span class="comment">-- second time running  </span></span><br><span class="line">                <span class="comment">--[[  </span></span><br><span class="line"><span class="comment">                if begin_with_nalu_hdr then  </span></span><br><span class="line"><span class="comment">                    -- drop AUD  </span></span><br><span class="line"><span class="comment">                    local nalu_type = bit.band(str_bytes:byte(0,1), 0x1F)  </span></span><br><span class="line"><span class="comment">                    if nalu_type == 9 then  </span></span><br><span class="line"><span class="comment">                        return;  </span></span><br><span class="line"><span class="comment">                    end  </span></span><br><span class="line"><span class="comment">                end  </span></span><br><span class="line"><span class="comment">                ]]</span>  </span><br><span class="line">                  </span><br><span class="line">                <span class="keyword">if</span> stream_info.counter2 == <span class="number">0</span> <span class="keyword">then</span>  </span><br><span class="line">                    <span class="comment">-- write SPS and PPS to file header first  </span></span><br><span class="line">                    <span class="keyword">if</span> stream_info.sps <span class="keyword">then</span>  </span><br><span class="line">                        stream_info.file:<span class="built_in">write</span>(<span class="string">"\00\00\00\01"</span>)  </span><br><span class="line">                        stream_info.file:<span class="built_in">write</span>(stream_info.sps)  </span><br><span class="line">                    <span class="keyword">else</span>  </span><br><span class="line">                        twappend(<span class="string">"Not found SPS for ["</span> .. stream_info.filename .. <span class="string">"], it might not be played!\n"</span>)  </span><br><span class="line">                    <span class="keyword">end</span>  </span><br><span class="line">                    <span class="keyword">if</span> stream_info.pps <span class="keyword">then</span>  </span><br><span class="line">                        stream_info.file:<span class="built_in">write</span>(<span class="string">"\00\00\00\01"</span>)  </span><br><span class="line">                        stream_info.file:<span class="built_in">write</span>(stream_info.pps)  </span><br><span class="line">                    <span class="keyword">else</span>  </span><br><span class="line">                        twappend(<span class="string">"Not found PPS for ["</span> .. stream_info.filename .. <span class="string">"], it might not be played!\n"</span>)  </span><br><span class="line">                    <span class="keyword">end</span>  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">              </span><br><span class="line">                <span class="keyword">if</span> begin_with_nalu_hdr <span class="keyword">then</span>  </span><br><span class="line">                    <span class="comment">-- *.264 raw file format seams that every nalu start with 0x00000001  </span></span><br><span class="line">                    stream_info.file:<span class="built_in">write</span>(<span class="string">"\00\00\00\01"</span>)  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">                stream_info.file:<span class="built_in">write</span>(str_bytes)  </span><br><span class="line">                stream_info.counter2 = stream_info.counter2 + <span class="number">1</span>  </span><br><span class="line">  </span><br><span class="line">                <span class="comment">-- update progress window's progress bar  </span></span><br><span class="line">                <span class="keyword">if</span> stream_info.counter &gt; <span class="number">0</span> <span class="keyword">and</span> stream_info.counter2 &lt; stream_info.counter <span class="keyword">then</span> pgtw:update(stream_info.counter2 / stream_info.counter) <span class="keyword">end</span>  </span><br><span class="line">            <span class="keyword">end</span>  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">comp_pack</span><span class="params">(p1, p2)</span></span>  </span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">math</span>.<span class="built_in">abs</span>(p2.seq - p1.seq) &lt; <span class="number">1000</span> <span class="keyword">then</span>  </span><br><span class="line">                <span class="keyword">return</span> p1.seq &lt; p2.seq  </span><br><span class="line">            <span class="keyword">else</span> <span class="comment">-- seqeunce is over 2^16, so the small one is much big  </span></span><br><span class="line">                <span class="keyword">return</span> p1.seq &gt; p2.seq  </span><br><span class="line">            <span class="keyword">end</span>  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">print_seq_error</span><span class="params">(stream_info, str)</span></span>  </span><br><span class="line">            <span class="keyword">if</span> stream_info.seq_error_counter == <span class="literal">nil</span> <span class="keyword">then</span>  </span><br><span class="line">                stream_info.seq_error_counter = <span class="number">0</span>  </span><br><span class="line">            <span class="keyword">end</span>  </span><br><span class="line">            stream_info.seq_error_counter = stream_info.seq_error_counter + <span class="number">1</span>  </span><br><span class="line">            twappend(str .. <span class="string">" SeqErrCounts="</span> .. stream_info.seq_error_counter)  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">sort_and_write</span><span class="params">(stream_info, frame)</span></span>  </span><br><span class="line">            <span class="built_in">table</span>.<span class="built_in">sort</span>(frame.packs, comp_pack)  </span><br><span class="line">              </span><br><span class="line">            <span class="comment">-- check if it is uncompleted frame  </span></span><br><span class="line">            <span class="keyword">local</span> completed = <span class="literal">true</span>  </span><br><span class="line">            <span class="keyword">for</span> i = <span class="number">1</span>, #frame.packs - <span class="number">1</span>, <span class="number">1</span> <span class="keyword">do</span>  </span><br><span class="line">                <span class="keyword">local</span> seq1 = frame.packs[i].seq  </span><br><span class="line">                <span class="keyword">local</span> seq2 = frame.packs[i+<span class="number">1</span>].seq  </span><br><span class="line">                <span class="keyword">if</span> bit.band(seq1+<span class="number">1</span>, <span class="number">0xFFFF</span>) ~= seq2 <span class="keyword">then</span>  </span><br><span class="line">                    print_seq_error(stream_info, <span class="string">" RTP pack Lost: timestamp="</span> .. frame.timestamp .. <span class="string">" seq between "</span> .. seq1 .. <span class="string">" and "</span> .. seq2)  </span><br><span class="line">                    completed = <span class="literal">false</span>  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">            <span class="keyword">end</span>  </span><br><span class="line">              </span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> frame.packs[<span class="number">1</span>].nalu_begin <span class="keyword">then</span>  </span><br><span class="line">                print_seq_error(stream_info, <span class="string">" RTP pack Lost: timestamp="</span> .. frame.timestamp .. <span class="string">" seq before "</span> .. frame.packs[<span class="number">1</span>].seq)  </span><br><span class="line">                completed = <span class="literal">false</span>  </span><br><span class="line">            <span class="keyword">end</span>  </span><br><span class="line">              </span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> frame.packs[#frame.packs].nalu_end <span class="keyword">then</span>  </span><br><span class="line">                print_seq_error(stream_info, <span class="string">" RTP pack Lost: timestamp="</span> .. frame.timestamp .. <span class="string">" seq after "</span> .. frame.packs[#frame.packs].seq)  </span><br><span class="line">                completed = <span class="literal">false</span>  </span><br><span class="line">            <span class="keyword">end</span>  </span><br><span class="line">              </span><br><span class="line">            <span class="keyword">if</span> completed <span class="keyword">then</span>  </span><br><span class="line">                <span class="keyword">for</span> i = <span class="number">1</span>, #frame.packs, <span class="number">1</span> <span class="keyword">do</span>  </span><br><span class="line">                    real_write_to_file(stream_info, frame.packs[i].data, frame.packs[i].nalu_begin)  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">            <span class="keyword">else</span>  </span><br><span class="line">                twappend(<span class="string">"   We drop one uncompleted frame: rtp.timestamp="</span> .. frame.timestamp   </span><br><span class="line">                         .. <span class="string">" nalu_type="</span> .. (frame.nalu_type <span class="keyword">and</span> frame.nalu_type ..<span class="string">"("</span> .. get_enum_name(nalu_type_list, frame.nalu_type) .. <span class="string">")"</span> <span class="keyword">or</span> <span class="string">"unknown"</span>) )  </span><br><span class="line">            <span class="keyword">end</span>  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">write_to_file</span><span class="params">(stream_info, str_bytes, begin_with_nalu_hdr, timestamp, seq, end_of_nalu)</span></span>  </span><br><span class="line">            <span class="keyword">if</span> drop_uncompleted_frame <span class="keyword">and</span> <span class="keyword">not</span> first_run <span class="keyword">then</span> <span class="comment">-- sort and drop uncompleted frame  </span></span><br><span class="line">                <span class="keyword">if</span> stream_info.frame_buffer_size == <span class="literal">nil</span> <span class="keyword">then</span>  </span><br><span class="line">                    stream_info.frame_buffer_size = <span class="number">0</span>  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">                  </span><br><span class="line">                <span class="keyword">if</span> timestamp &lt; <span class="number">0</span> <span class="keyword">or</span> seq &lt; <span class="number">0</span> <span class="keyword">then</span>  </span><br><span class="line">                    twappend(<span class="string">" Invalid rtp timestamp ("</span>.. timestamp .. <span class="string">") or seq ("</span>.. seq .. <span class="string">")! We have to write it to file directly!"</span>)  </span><br><span class="line">                    real_write_to_file(stream_info, str_bytes, begin_with_nalu_hdr)  </span><br><span class="line">                    <span class="keyword">return</span>;  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">                  </span><br><span class="line">                <span class="comment">-- check if this frame has existed  </span></span><br><span class="line">                <span class="keyword">local</span> p = stream_info.frame_buffer  </span><br><span class="line">                <span class="keyword">while</span> p <span class="keyword">do</span>  </span><br><span class="line">                    <span class="keyword">if</span> p.timestamp == timestamp <span class="keyword">then</span>  </span><br><span class="line">                        <span class="keyword">break</span>;  </span><br><span class="line">                    <span class="keyword">else</span>  </span><br><span class="line">                        p = p.<span class="built_in">next</span>  </span><br><span class="line">                    <span class="keyword">end</span>  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">                  </span><br><span class="line">                <span class="keyword">if</span> p <span class="keyword">then</span>  <span class="comment">-- add this pack to frame  </span></span><br><span class="line">                    <span class="keyword">if</span> begin_with_nalu_hdr <span class="keyword">then</span>  </span><br><span class="line">                        p.nalu_type = bit.band(str_bytes:<span class="built_in">byte</span>(<span class="number">1</span>), <span class="number">0x1F</span>)  </span><br><span class="line">                    <span class="keyword">end</span>  </span><br><span class="line">                    <span class="built_in">table</span>.<span class="built_in">insert</span>(p.packs, &#123; [<span class="string">"seq"</span>] = seq, [<span class="string">"data"</span>] = str_bytes , [<span class="string">"nalu_begin"</span>] = begin_with_nalu_hdr, [<span class="string">"nalu_end"</span>] = end_of_nalu &#125;)  </span><br><span class="line">                    <span class="keyword">return</span>  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">                  </span><br><span class="line">                <span class="keyword">if</span> stream_info.frame_buffer_size &gt;= MAX_FRAME_NUM <span class="keyword">then</span>  </span><br><span class="line">                    <span class="comment">-- write the most early frame to file  </span></span><br><span class="line">                    sort_and_write(stream_info, stream_info.frame_buffer)  </span><br><span class="line">                    stream_info.frame_buffer = stream_info.frame_buffer.<span class="built_in">next</span>  </span><br><span class="line">                    stream_info.frame_buffer_size = stream_info.frame_buffer_size - <span class="number">1</span>  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">                  </span><br><span class="line">                <span class="comment">-- create a new frame buffer for new frame (timestamp)  </span></span><br><span class="line">                <span class="keyword">local</span> frame = &#123;&#125;  </span><br><span class="line">                frame.timestamp = timestamp  </span><br><span class="line">                <span class="keyword">if</span> begin_with_nalu_hdr <span class="keyword">then</span>  </span><br><span class="line">                    frame.nalu_type = bit.band(str_bytes:<span class="built_in">byte</span>(<span class="number">1</span>), <span class="number">0x1F</span>)  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">                frame.packs = &#123;&#123; [<span class="string">"seq"</span>] = seq, [<span class="string">"data"</span>] = str_bytes, [<span class="string">"nalu_begin"</span>] = begin_with_nalu_hdr, [<span class="string">"nalu_end"</span>] = end_of_nalu&#125;&#125;  <span class="comment">-- put pack to index 1 pos  </span></span><br><span class="line">                frame.<span class="built_in">next</span> = <span class="literal">nil</span>  </span><br><span class="line">                  </span><br><span class="line">                <span class="keyword">if</span> stream_info.frame_buffer_size == <span class="number">0</span> <span class="keyword">then</span>  <span class="comment">-- first frame  </span></span><br><span class="line">                    stream_info.frame_buffer = frame  </span><br><span class="line">                <span class="keyword">else</span>  </span><br><span class="line">                    p = stream_info.frame_buffer  </span><br><span class="line">                    <span class="keyword">while</span> p.<span class="built_in">next</span> <span class="keyword">do</span>  </span><br><span class="line">                        p = p.<span class="built_in">next</span>  </span><br><span class="line">                    <span class="keyword">end</span>  </span><br><span class="line">                    p.<span class="built_in">next</span> = frame  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">                stream_info.frame_buffer_size = stream_info.frame_buffer_size + <span class="number">1</span>  </span><br><span class="line">                  </span><br><span class="line">            <span class="keyword">else</span> <span class="comment">-- write data direct to file without sort or frame drop  </span></span><br><span class="line">                real_write_to_file(stream_info, str_bytes, begin_with_nalu_hdr)  </span><br><span class="line">            <span class="keyword">end</span>  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">-- read RFC3984 about single nalu/stap-a/fu-a H264 payload format of rtp  </span></span><br><span class="line">        <span class="comment">-- single NALU: one rtp payload contains only NALU  </span></span><br><span class="line">        <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">process_single_nalu</span><span class="params">(stream_info, h264, timestamp, seq)</span></span>  </span><br><span class="line">            <span class="comment">--write_to_file(stream_info, h264:tvb()():string(), true, timestamp, seq, true)  </span></span><br><span class="line">            write_to_file(stream_info, ((version_num &gt;= <span class="number">5.2</span>) <span class="keyword">and</span> h264:tvb():raw() <span class="keyword">or</span> h264:tvb()():<span class="built_in">string</span>()), <span class="literal">true</span>, timestamp, seq, <span class="literal">true</span>)  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">-- STAP-A: one rtp payload contains more than one NALUs  </span></span><br><span class="line">        <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">process_stap_a</span><span class="params">(stream_info, h264, timestamp, seq)</span></span>  </span><br><span class="line">            <span class="keyword">local</span> h264tvb = h264:tvb()  </span><br><span class="line">            <span class="keyword">local</span> offset = <span class="number">1</span>  </span><br><span class="line">            <span class="keyword">local</span> i = <span class="number">1</span>  </span><br><span class="line">            <span class="keyword">repeat</span>  </span><br><span class="line">                <span class="keyword">local</span> size = h264tvb(offset,<span class="number">2</span>):uint()  </span><br><span class="line">                <span class="comment">--write_to_file(stream_info, h264tvb(offset+2, size):string(), true, timestamp, i, true)  </span></span><br><span class="line">                write_to_file(stream_info, ((version_num &gt;= <span class="number">5.2</span>) <span class="keyword">and</span> h264tvb:raw(offset+<span class="number">2</span>, size) <span class="keyword">or</span> h264tvb(offset+<span class="number">2</span>, size):<span class="built_in">string</span>()), <span class="literal">true</span>, timestamp, i, <span class="literal">true</span>)  </span><br><span class="line">                offset = offset + <span class="number">2</span> + size  </span><br><span class="line">                i = i + <span class="number">1</span>  </span><br><span class="line">            <span class="keyword">until</span> offset &gt;= h264tvb:<span class="built_in">len</span>()  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">-- FU-A: one rtp payload contains only one part of a NALU (might be begin, middle and end part of a NALU)  </span></span><br><span class="line">        <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">process_fu_a</span><span class="params">(stream_info, h264, timestamp, seq)</span></span>  </span><br><span class="line">            <span class="keyword">local</span> h264tvb = h264:tvb()  </span><br><span class="line">            <span class="keyword">local</span> fu_idr = h264:get_index(<span class="number">0</span>)  </span><br><span class="line">            <span class="keyword">local</span> fu_hdr = h264:get_index(<span class="number">1</span>)  </span><br><span class="line">            <span class="keyword">local</span> end_of_nalu =  (bit.band(fu_hdr, <span class="number">0x40</span>) ~= <span class="number">0</span>)  </span><br><span class="line">            <span class="keyword">if</span> bit.band(fu_hdr, <span class="number">0x80</span>) ~= <span class="number">0</span> <span class="keyword">then</span>  </span><br><span class="line">                <span class="comment">-- start bit is set then save nalu header and body  </span></span><br><span class="line">                <span class="keyword">local</span> nalu_hdr = bit.bor(bit.band(fu_idr, <span class="number">0xE0</span>), bit.band(fu_hdr, <span class="number">0x1F</span>))  </span><br><span class="line">                <span class="comment">--write_to_file(stream_info, string.char(nalu_hdr) .. h264tvb(2):string(), true, timestamp, seq, end_of_nalu)  </span></span><br><span class="line">                write_to_file(stream_info, <span class="built_in">string</span>.<span class="built_in">char</span>(nalu_hdr) .. ((version_num &gt;= <span class="number">5.2</span>) <span class="keyword">and</span> h264tvb:raw(<span class="number">2</span>) <span class="keyword">or</span> h264tvb(<span class="number">2</span>):<span class="built_in">string</span>()), <span class="literal">true</span>, timestamp, seq, end_of_nalu)  </span><br><span class="line">            <span class="keyword">else</span>  </span><br><span class="line">                <span class="comment">-- start bit not set, just write part of nalu body  </span></span><br><span class="line">                <span class="comment">--write_to_file(stream_info, h264tvb(2):string(), false, timestamp, seq, end_of_nalu)  </span></span><br><span class="line">                write_to_file(stream_info, ((version_num &gt;= <span class="number">5.2</span>) <span class="keyword">and</span> h264tvb:raw(<span class="number">2</span>) <span class="keyword">or</span> h264tvb(<span class="number">2</span>):<span class="built_in">string</span>()), <span class="literal">false</span>, timestamp, seq, end_of_nalu)  </span><br><span class="line">            <span class="keyword">end</span>  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">-- call this function if a packet contains h264 payload  </span></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">my_h264_tap.packet</span><span class="params">(pinfo,tvb)</span></span>  </span><br><span class="line">            <span class="keyword">if</span> stream_infos == <span class="literal">nil</span> <span class="keyword">then</span>  </span><br><span class="line">                <span class="comment">-- not triggered by button event, so do nothing.  </span></span><br><span class="line">                <span class="keyword">return</span>  </span><br><span class="line">            <span class="keyword">end</span>  </span><br><span class="line">            <span class="keyword">local</span> h264s = &#123; f_h264() &#125; <span class="comment">-- using table because one packet may contains more than one RTP  </span></span><br><span class="line">            <span class="keyword">local</span> rtps = &#123; f_rtp() &#125;  </span><br><span class="line">            <span class="keyword">local</span> rtp_seqs = &#123; f_rtp_seq() &#125;  </span><br><span class="line">            <span class="keyword">local</span> rtp_timestamps = &#123; f_rtp_timestamp() &#125;  </span><br><span class="line">              </span><br><span class="line">            <span class="keyword">for</span> i,h264_f <span class="keyword">in</span> <span class="built_in">ipairs</span>(h264s) <span class="keyword">do</span>  </span><br><span class="line">                <span class="keyword">if</span> h264_f.<span class="built_in">len</span> &lt; <span class="number">2</span> <span class="keyword">then</span>  </span><br><span class="line">                    <span class="keyword">return</span>  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">                <span class="comment">--local h264 = h264_f.value   -- is ByteArray, it only works for 1.10.1 or early version  </span></span><br><span class="line">                <span class="comment">--local h264 = h264_f.range:bytes()   -- according to user-guide.chm, there is a bug of fieldInfo.value, so we have to convert it to TVB range first  </span></span><br><span class="line">                <span class="keyword">local</span> h264 = (version_num &gt;= <span class="number">5.2</span>) <span class="keyword">and</span> h264_f.range:bytes() <span class="keyword">or</span> h264_f.value   </span><br><span class="line">                <span class="keyword">local</span> hdr_type = bit.band(h264:get_index(<span class="number">0</span>), <span class="number">0x1F</span>)  </span><br><span class="line">                <span class="keyword">local</span> stream_info = get_stream_info(pinfo)  </span><br><span class="line"><span class="comment">--twappend(string.format("hdr_type=%X %d", hdr_type, hdr_type))   </span></span><br><span class="line"><span class="comment">--twappend("bytearray=" .. tostring(h264))  </span></span><br><span class="line"><span class="comment">--twappend("byterange=" .. tostring(h264_f.range):upper())  </span></span><br><span class="line">                <span class="comment">-- search the RTP timestamp and sequence of this H264  </span></span><br><span class="line">                <span class="keyword">local</span> timestamp = <span class="number">-1</span>  </span><br><span class="line">                <span class="keyword">local</span> seq = <span class="number">-1</span>  </span><br><span class="line">                <span class="comment">-- debug begin  </span></span><br><span class="line">                <span class="keyword">local</span> rtplen = <span class="number">-1</span>  </span><br><span class="line">                <span class="keyword">local</span> preh264_foffset = <span class="number">-1</span>  </span><br><span class="line">                <span class="keyword">local</span> prertp_foffset = <span class="number">-1</span>  </span><br><span class="line">                <span class="keyword">local</span> preh264len = <span class="number">-1</span>  </span><br><span class="line">                <span class="comment">-- debug end  </span></span><br><span class="line">                <span class="keyword">if</span> drop_uncompleted_frame <span class="keyword">then</span>  </span><br><span class="line">                    <span class="keyword">local</span> matchx = <span class="number">0</span>;  </span><br><span class="line">                    <span class="keyword">for</span> j,rtp_f <span class="keyword">in</span> <span class="built_in">ipairs</span>(rtps) <span class="keyword">do</span>  </span><br><span class="line">                        <span class="keyword">if</span> h264_f.offset &gt; rtp_f.offset <span class="keyword">and</span> h264_f.offset - rtp_f.offset &lt;= <span class="number">16</span> <span class="keyword">and</span> h264_f.offset+h264_f.<span class="built_in">len</span> &lt;= rtp_f.offset+rtp_f.<span class="built_in">len</span> <span class="keyword">then</span>  </span><br><span class="line">                        <span class="comment">-- debug begin  </span></span><br><span class="line">                        <span class="comment">--if h264_f.offset &gt; rtp_f.offset and h264_f.offset &lt; rtp_f.offset+rtp_f.len then  </span></span><br><span class="line">                    matchx = matchx + <span class="number">1</span>  </span><br><span class="line">                    <span class="keyword">if</span> matchx &gt; <span class="number">1</span> <span class="keyword">then</span>  </span><br><span class="line">                        print_seq_error(stream_info, <span class="string">"ASS seq="</span> .. seq .. <span class="string">" timestamp="</span> .. timestamp .. <span class="string">" rtplen="</span> .. rtplen .. <span class="string">" rtpoff="</span> .. prertp_foffset .. <span class="string">" h264off="</span> .. preh264_foffset .. <span class="string">" h264len="</span> .. preh264len .. <span class="string">"  |matched="</span> .. matchx .. <span class="string">"  New seq="</span> .. rtp_seqs[j].value .. <span class="string">" timestamp="</span> .. rtp_timestamps[j].value .. <span class="string">" rtplen="</span> .. rtp_f.<span class="built_in">len</span> ..<span class="string">" rtpoff="</span> .. rtp_f.offset .. <span class="string">" h264off="</span> .. h264_f.offset .. <span class="string">" h264.len="</span> .. h264_f.<span class="built_in">len</span>)  </span><br><span class="line">                    <span class="keyword">end</span>        </span><br><span class="line">                    <span class="comment">-- debug end  </span></span><br><span class="line">                            seq = rtp_seqs[j].value  </span><br><span class="line">                            timestamp = rtp_timestamps[j].value  </span><br><span class="line">                            <span class="comment">-- debug begin  </span></span><br><span class="line">                            rtplen = rtp_f.<span class="built_in">len</span>  </span><br><span class="line">                            preh264_foffset = h264_f.offset  </span><br><span class="line">                            prertp_foffset = rtp_f.offset  </span><br><span class="line">                            preh264len = h264_f.<span class="built_in">len</span>  </span><br><span class="line">                            <span class="comment">-- debug end  </span></span><br><span class="line">                            <span class="keyword">break</span>  </span><br><span class="line">                        <span class="keyword">end</span>  </span><br><span class="line">                    <span class="keyword">end</span>  </span><br><span class="line">  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">                  </span><br><span class="line">                <span class="keyword">if</span> hdr_type &gt; <span class="number">0</span> <span class="keyword">and</span> hdr_type &lt; <span class="number">24</span> <span class="keyword">then</span>  </span><br><span class="line">                    <span class="comment">-- Single NALU  </span></span><br><span class="line">                    process_single_nalu(stream_info, h264, timestamp, seq)  </span><br><span class="line">                <span class="keyword">elseif</span> hdr_type == <span class="number">24</span> <span class="keyword">then</span>  </span><br><span class="line">                    <span class="comment">-- STAP-A Single-time aggregation  </span></span><br><span class="line">                    process_stap_a(stream_info, h264, timestamp, seq)  </span><br><span class="line">                <span class="keyword">elseif</span> hdr_type == <span class="number">28</span> <span class="keyword">then</span>  </span><br><span class="line">                    <span class="comment">-- FU-A  </span></span><br><span class="line">                    process_fu_a(stream_info, h264, timestamp, seq)  </span><br><span class="line">                <span class="keyword">else</span>  </span><br><span class="line">                    twappend(<span class="string">"Error: unknown type="</span> .. hdr_type .. <span class="string">" ; we only know 1-23(Single NALU),24(STAP-A),28(FU-A)!"</span>)  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">            <span class="keyword">end</span>  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">-- close all open files  </span></span><br><span class="line">        <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">close_all_files</span><span class="params">()</span></span>  </span><br><span class="line">            <span class="keyword">if</span> stream_infos <span class="keyword">then</span>  </span><br><span class="line">                <span class="keyword">local</span> no_streams = <span class="literal">true</span>  </span><br><span class="line">                <span class="keyword">for</span> id,stream <span class="keyword">in</span> <span class="built_in">pairs</span>(stream_infos) <span class="keyword">do</span>  </span><br><span class="line">                    <span class="keyword">if</span> stream <span class="keyword">and</span> stream.file <span class="keyword">then</span>  </span><br><span class="line">                        <span class="keyword">if</span> stream.frame_buffer <span class="keyword">then</span>  </span><br><span class="line">                            <span class="keyword">local</span> p = stream.frame_buffer  </span><br><span class="line">                            <span class="keyword">while</span> p <span class="keyword">do</span>  </span><br><span class="line">                                sort_and_write(stream, p)  </span><br><span class="line">                                p = p.<span class="built_in">next</span>  </span><br><span class="line">                            <span class="keyword">end</span>  </span><br><span class="line">                            stream.frame_buffer = <span class="literal">nil</span>  </span><br><span class="line">                            stream.frame_buffer_size = <span class="number">0</span>  </span><br><span class="line">                        <span class="keyword">end</span>  </span><br><span class="line">                        stream.file:<span class="built_in">flush</span>()  </span><br><span class="line">                        stream.file:<span class="built_in">close</span>()  </span><br><span class="line">                        twappend(<span class="string">"File ["</span> .. stream.filename .. <span class="string">"] generated OK!\n"</span>)  </span><br><span class="line">                        stream.file = <span class="literal">nil</span>  </span><br><span class="line">                        no_streams = <span class="literal">false</span>  </span><br><span class="line">                    <span class="keyword">end</span>  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">                  </span><br><span class="line">                <span class="keyword">if</span> no_streams <span class="keyword">then</span>  </span><br><span class="line">                    twappend(<span class="string">"Not found any H.264 over RTP streams!"</span>)  </span><br><span class="line">                <span class="keyword">end</span>  </span><br><span class="line">            <span class="keyword">end</span>  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">my_h264_tap.reset</span><span class="params">()</span></span>  </span><br><span class="line">            <span class="comment">-- do nothing now  </span></span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">remove</span><span class="params">()</span></span>  </span><br><span class="line">            my_h264_tap:<span class="built_in">remove</span>()  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        tw:set_atclose(<span class="built_in">remove</span>)  </span><br><span class="line">          </span><br><span class="line">        <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">export_h264</span><span class="params">(drop_frame)</span></span>  </span><br><span class="line">            pgtw = ProgDlg.new(<span class="string">"Export H264 to File Process"</span>, <span class="string">"Dumping H264 data to file..."</span>)  </span><br><span class="line">            first_run = <span class="literal">true</span>  </span><br><span class="line">            drop_uncompleted_frame = drop_frame  </span><br><span class="line">            stream_infos = &#123;&#125;  </span><br><span class="line">            <span class="comment">-- first time it runs for counting h.264 packets and finding SPS and PPS  </span></span><br><span class="line">            retap_packets()  </span><br><span class="line">            first_run = <span class="literal">false</span>  </span><br><span class="line">            <span class="comment">-- second time it runs for saving h264 data to target file.  </span></span><br><span class="line">            retap_packets()  </span><br><span class="line">            close_all_files()  </span><br><span class="line">            <span class="comment">-- close progress window  </span></span><br><span class="line">            pgtw:<span class="built_in">close</span>()  </span><br><span class="line">            stream_infos = <span class="literal">nil</span>  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">export_all</span><span class="params">()</span></span>  </span><br><span class="line">            export_h264(<span class="literal">false</span>)  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">export_completed_frames</span><span class="params">()</span></span>  </span><br><span class="line">            export_h264(<span class="literal">true</span>)  </span><br><span class="line">        <span class="keyword">end</span>  </span><br><span class="line">          </span><br><span class="line">        tw:add_button(<span class="string">"Export All"</span>, export_all)  </span><br><span class="line">        tw:add_button(<span class="string">"Export Completed Frames (Drop uncompleted frames)"</span>, export_completed_frames)  </span><br><span class="line">    <span class="keyword">end</span>  </span><br><span class="line">      </span><br><span class="line">    <span class="comment">-- Find this feature in menu "Tools-&gt;"Export H264 to file [HQX's plugins]""  </span></span><br><span class="line">    register_menu(<span class="string">"Export H264 to file [HQX's plugins]"</span>, export_h264_to_file, MENU_TOOLS_UNSORTED)  </span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>mpeg_packets_dump.lua 将mpeg ts包保存为ts视频文件</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">-- Wireshark extension to dump MPEG2 transport stream packets</span></span><br><span class="line"><span class="comment">--</span></span><br><span class="line"><span class="comment">-- To use this script:</span></span><br><span class="line"><span class="comment">-- 1. Save it in the Wireshark home directory e.g. c:\Program Files\Wireshark</span></span><br><span class="line"><span class="comment">-- 2. Edit init.lua in the Wireshark home directory and add the following line</span></span><br><span class="line"><span class="comment">--    dofile("mpeg_packets_dump.lua")</span></span><br><span class="line"><span class="comment">-- 3. Restart Wireshark to add the extension</span></span><br><span class="line"><span class="comment">-- 4. Capture some traffic which includes some MPEG transport packets, for</span></span><br><span class="line"><span class="comment">--    example, it has been tested with MPEG transmitted via UDP multicast.</span></span><br><span class="line"><span class="comment">-- 5. Stop the capture, and select Tools -&gt; Dump MPEG TS Packets</span></span><br><span class="line"><span class="comment">-- 6. Enter the file where the mpeg stream should be saved. </span></span><br><span class="line"><span class="comment">-- 7. In order to select only one of many streams, enter a wireshark filter</span></span><br><span class="line"><span class="comment">--    expression, or you can leave the filter blank.</span></span><br><span class="line"><span class="comment">-- 8. Press okay. Any MPEG packets in the current capture which were detected </span></span><br><span class="line"><span class="comment">--    by the MPEG dissector and that match your filter will be dumped to </span></span><br><span class="line"><span class="comment">--    your output file.</span></span><br><span class="line"><span class="comment">--</span></span><br><span class="line"><span class="comment">-- Tested with Wireshark 1.4.3</span></span><br><span class="line"><span class="comment">-- ryan.gorsuch_at_echostar_com</span></span><br><span class="line"><span class="comment">-- 2011-04-01</span></span><br><span class="line"><span class="comment">-- Modified and tested with Wireshark 1.11.3</span></span><br><span class="line"><span class="comment">-- hadrielk_at_yahoo_com</span></span><br><span class="line"><span class="comment">-- 2014-02-17</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- only works in wireshark, not tshark</span></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> GUI_ENABLED <span class="keyword">then</span></span><br><span class="line">	<span class="built_in">print</span>(<span class="string">"mpeg_packets_dump.lua only works in Wireshark"</span>)</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- declare some field extractors</span></span><br><span class="line"><span class="keyword">local</span> mpeg_pid     = Field.new(<span class="string">"mp2t.pid"</span>)</span><br><span class="line"><span class="keyword">local</span> mpeg_pkt     = Field.new(<span class="string">"mp2t"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- declare some functions we define later</span></span><br><span class="line"><span class="keyword">local</span> tobinary</span><br><span class="line"></span><br><span class="line"><span class="comment">-- do a payload dump when prompted by the user</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">init_payload_dump</span><span class="params">(file,filter)</span></span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">local</span> packet_count = <span class="number">0</span></span><br><span class="line">	<span class="keyword">local</span> tap = Listener.new(<span class="literal">nil</span>,filter)</span><br><span class="line">	<span class="keyword">local</span> myfile = <span class="built_in">assert</span>(<span class="built_in">io</span>.<span class="built_in">open</span>(file, <span class="string">"w+b"</span>))</span><br><span class="line">	</span><br><span class="line">	<span class="comment">-- this function is going to be called once each time our filter matches</span></span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">tap.packet</span><span class="params">(pinfo,tvb)</span></span></span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> ( mpeg_pid() ) <span class="keyword">then</span></span><br><span class="line">			packet_count = packet_count + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">			<span class="comment">-- there can be multiple mp2t packets in a given frame, so get them all into a table</span></span><br><span class="line">			<span class="keyword">local</span> contents = &#123; mpeg_pkt() &#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">for</span> i,finfo <span class="keyword">in</span> <span class="built_in">ipairs</span>(contents) <span class="keyword">do</span></span><br><span class="line">				<span class="keyword">local</span> tvbrange = finfo.range</span><br><span class="line">				myfile:<span class="built_in">write</span>( tobinary( <span class="built_in">tostring</span>( tvbrange:bytes() ) ) )</span><br><span class="line">				myfile:<span class="built_in">flush</span>()</span><br><span class="line">			<span class="keyword">end</span></span><br><span class="line">		<span class="keyword">end</span></span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">-- re-inspect all the packets that are in the current capture, thereby</span></span><br><span class="line">	<span class="comment">-- triggering the above tap.packet function</span></span><br><span class="line">	retap_packets()</span><br><span class="line"></span><br><span class="line">	<span class="comment">-- cleanup</span></span><br><span class="line">	myfile:<span class="built_in">close</span>()</span><br><span class="line">	tap:<span class="built_in">remove</span>()</span><br><span class="line">	<span class="built_in">debug</span>(<span class="string">"Dumped mpeg packets: "</span> .. packet_count )</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- show this dialog when the user select "Dump" from the Tools menu</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">begin_dialog_menu</span><span class="params">()</span></span>	</span><br><span class="line">	new_dialog(<span class="string">"Dump MPEG TS Packets"</span>,init_payload_dump,<span class="string">"Output file"</span>,<span class="string">"Packet filter (optional)\n\nExamples:\nip.dst == 225.1.1.4\nmp2t\nmp2t.pid == 0x300"</span>)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">register_menu(<span class="string">"Dump MPEG TS Packets"</span>,begin_dialog_menu,MENU_TOOLS_UNSORTED)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">hex</span><span class="params">(ascii_code)</span></span></span><br><span class="line">	<span class="comment">-- convert an ascii char code to an integer value "0" =&gt; 0, "1" =&gt; 1, etc</span></span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">not</span> ascii_code <span class="keyword">then</span></span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">	<span class="keyword">elseif</span> ascii_code &lt; <span class="number">58</span> <span class="keyword">then</span></span><br><span class="line">		<span class="keyword">return</span> ascii_code - <span class="number">48</span></span><br><span class="line">	<span class="keyword">elseif</span> ascii_code &lt; <span class="number">91</span> <span class="keyword">then</span></span><br><span class="line">		<span class="keyword">return</span> ascii_code - <span class="number">65</span> + <span class="number">10</span></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		<span class="keyword">return</span> ascii_code - <span class="number">97</span> + <span class="number">10</span></span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">tobinary = <span class="function"><span class="keyword">function</span> <span class="params">(hexbytes)</span></span></span><br><span class="line"><span class="comment">-- this function converts a hex-string to raw bytes</span></span><br><span class="line">	</span><br><span class="line">	<span class="keyword">local</span> binary = &#123;&#125;</span><br><span class="line">	<span class="keyword">local</span> sz = <span class="number">1</span></span><br><span class="line">	</span><br><span class="line">	<span class="keyword">for</span> i=<span class="number">1</span>, <span class="built_in">string</span>.<span class="built_in">len</span>(hexbytes), <span class="number">2</span> <span class="keyword">do</span></span><br><span class="line">		binary[sz] = <span class="built_in">string</span>.<span class="built_in">char</span>( <span class="number">16</span> * hex( <span class="built_in">string</span>.<span class="built_in">byte</span>(hexbytes,i) ) + hex( <span class="built_in">string</span>.<span class="built_in">byte</span>(hexbytes,i+<span class="number">1</span>) ) )</span><br><span class="line">		sz = sz + <span class="number">1</span></span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">table</span>.<span class="built_in">concat</span>(binary)</span><br><span class="line">	</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+       
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div style="color:#FC6423;">虽然很不要脸，但是还请您多多打赏 ^_^</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wepay.png" alt="ppj 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="ppj 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Wireshark/" rel="tag"># Wireshark</a>
+          
+            <a href="/tags/WinPcap/" rel="tag"># WinPcap</a>
+          
+            <a href="/tags/Npcap/" rel="tag"># Npcap</a>
+          
+            <a href="/tags/RTSP/" rel="tag"># RTSP</a>
+          
+            <a href="/tags/RTP/" rel="tag"># RTP</a>
+          
+            <a href="/tags/抓包/" rel="tag"># 抓包</a>
+          
+            <a href="/tags/Loopback/" rel="tag"># Loopback</a>
+          
+            <a href="/tags/mpeg-packets-dump-lua/" rel="tag"># mpeg_packets_dump.lua</a>
+          
+            <a href="/tags/h264-export-lua/" rel="tag"># h264_export.lua</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/39598/" rel="prev" title="批量下载HLS的TS文件并无损合并">
+                批量下载HLS的TS文件并无损合并 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/me.jpg" alt="ppj">
+            
+              <p class="site-author-name" itemprop="name">ppj</p>
+              <p class="site-description motion-element" itemprop="description">海纳百川，有容乃大</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">59</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">105</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <span class="exturl" data-url="aHR0cHM6Ly9scHA3NzcuZ2l0ZWUuaW8vZGlhbmJhby8=" title="https://lpp777.gitee.io/dianbao/">电报机</span>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#工具软件简介"><span class="nav-number">1.</span> <span class="nav-text">工具软件简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#驱动"><span class="nav-number">1.1.</span> <span class="nav-text">驱动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#前端"><span class="nav-number">1.2.</span> <span class="nav-text">前端</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#操作过程"><span class="nav-number">2.</span> <span class="nav-text">操作过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#建立rtsp服务器"><span class="nav-number">2.1.</span> <span class="nav-text">建立rtsp服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#抓取数据包"><span class="nav-number">2.2.</span> <span class="nav-text">抓取数据包</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展-RTP-MPEG-TS-包"><span class="nav-number">3.</span> <span class="nav-text">扩展 RTP MPEG_TS 包</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ffmpeg命令行"><span class="nav-number">4.</span> <span class="nav-text">ffmpeg命令行</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#wireshark插件"><span class="nav-number">5.</span> <span class="nav-text">wireshark插件</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PPJ原创博客</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <span class="exturl theme-link" data-url="aHR0cHM6Ly9oZXhvLmlv">Hexo</span> 强力驱动</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@7.1.2/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'dark'});
+    }
+  </script>
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.5.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.5.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.5.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.5.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: true,
+        notify: false,
+        appId: 'DBPspH0JVeKk8sxAjHYtXODh-gzGzoHsz',
+        appKey: 'HLutKP3fTGE90kRNxD3byBTO',
+        placeholder: '你有什么想说的吗?',
+        avatar:'wavatar',
+        meta:guest,
+        pageSize:'10' || 10,
+        visitor: false
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script type="text/javascript" src="/js/src/exturl.js?v=6.5.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

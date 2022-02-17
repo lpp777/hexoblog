@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>
+    </title>
+
+    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+
+    <style type="text/css">
+        @font-face {
+            font-family: StMarie;
+            src: url(StMarie-Thin.otf);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .cdiv {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: indianred;
+            opacity: 0.95;
+            font-family: 'StMarie';
+        }
+    </style><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head><body bgcolor="#F0FFFF">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="cdiv">
+        <div align="center">
+            <p style="font-size: 120px"> 4&nbsp;0&nbsp;4</p>
+            <a href="/"><img src="loader.gif"></a>
+            
+            <br> <br>
+            <p style="font-size: 40px">The Page Is Lost! </p>
+            <br><br>
+            <p style="font-size: 20px"> &gt;&gt;点击大眼睛回到主页&lt;&lt;</p>
+        </div>
+
+        <br>
+        <br>
+    </div><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+</body>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        setInterval("addEye()", 2000);
+    });
+
+    function addEye() {
+        var x = randomFromTo(0, $(window).width());
+        x = (x + 100) > $(window).width() ? (x - 100) : x;
+        var y = randomFromTo(0, $(window).height());
+        y = (y + 100) > $(window).height() ? (y - 100) : y;
+        var img0 = "<img src='loader.gif' height='50' width='50' style='position:absolute; left:" + x + "px; top:" + y + "px;' >"
+        $("body").append(img0);
+    }
+
+    function randomFromTo(from, to) {
+        return Math.floor(Math.random() * (to - from + 1) + from);
+    }
+
+</script>

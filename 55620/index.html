@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.5.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="mask-icon" href="/images/favicon.ico?v=6.5.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.5.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="1 Signal layer(信号层)信号层主要用于布置电路板上的导线。Protel 99 SE提供了32个信号层，包括Top layer(顶层)，Bottom layer(底层)和30个MidLayer(中间层)。 2 Internal plane layer(内部电源/接地层) Protel 99 SE提供了16个内部电源层/接地层.该类型的层仅用于多层板，主要用于布置电源线和接地线.我们称双">
+<meta name="keywords" content="胖胖哒,博客">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PCB各层含义">
+<meta property="og:url" content="https://www.openlinux.top/55620/index.html">
+<meta property="og:site_name" content="胖胖哒">
+<meta property="og:description" content="1 Signal layer(信号层)信号层主要用于布置电路板上的导线。Protel 99 SE提供了32个信号层，包括Top layer(顶层)，Bottom layer(底层)和30个MidLayer(中间层)。 2 Internal plane layer(内部电源/接地层) Protel 99 SE提供了16个内部电源层/接地层.该类型的层仅用于多层板，主要用于布置电源线和接地线.我们称双">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2022-02-17T07:31:31.796Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PCB各层含义">
+<meta name="twitter:description" content="1 Signal layer(信号层)信号层主要用于布置电路板上的导线。Protel 99 SE提供了32个信号层，包括Top layer(顶层)，Bottom layer(底层)和30个MidLayer(中间层)。 2 Internal plane layer(内部电源/接地层) Protel 99 SE提供了16个内部电源层/接地层.该类型的层仅用于多层板，主要用于布置电源线和接地线.我们称双">
+
+
+
+
+
+
+  <link rel="canonical" href="https://www.openlinux.top/55620/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>PCB各层含义 | 胖胖哒</title>
+  
+
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3e7dc8ac84df8794dd57fea74e0e6f95";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">胖胖哒</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <h1 class="site-subtitle" itemprop="description">PPJ的日志博客</h1>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.openlinux.top/55620/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ppj">
+      <meta itemprop="description" content="海纳百川，有容乃大">
+      <meta itemprop="image" content="/images/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖胖哒">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">PCB各层含义
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+
+
+          
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/55620/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/55620/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h5 id="1-Signal-layer-信号层"><a href="#1-Signal-layer-信号层" class="headerlink" title="1 Signal layer(信号层)"></a>1 Signal layer(信号层)</h5><p>信号层主要用于布置电路板上的导线。Protel 99 SE提供了32个信号层，包括Top layer(顶层)，Bottom layer(底层)和30个MidLayer(中间层)。</p>
+<h5 id="2-Internal-plane-layer-内部电源-接地层"><a href="#2-Internal-plane-layer-内部电源-接地层" class="headerlink" title="2 Internal plane layer(内部电源/接地层)"></a>2 Internal plane layer(内部电源/接地层)</h5><p> Protel 99 SE提供了16个内部电源层/接地层.该类型的层仅用于多层板，主要用于布置电源线和接地线.我们称双层板，四层板，六层板，一般指信号层和内部电源/接地层的数目。<br><a id="more"></a></p>
+<h5 id="3-Mechanical-layer-机械层"><a href="#3-Mechanical-layer-机械层" class="headerlink" title="3 Mechanical layer(机械层)"></a>3 Mechanical layer(机械层)</h5><p>Protel 99 SE提供了16个机械层，它一般用于设置电路板的外形尺寸，数据标记，对齐标记，装配说明以及其它的机械信息。这些信息因设计公司或PCB制造厂家的要求 而有所不同。执行菜单命令Design|Mechanical Layer能为电路板设置更多的机械层。另外，机械层可以附加在其它层上一起输出显示。</p>
+<h5 id="4-Solder-mask-layer-阻焊层"><a href="#4-Solder-mask-layer-阻焊层" class="headerlink" title="4 Solder mask layer(阻焊层)"></a>4 Solder mask layer(阻焊层)</h5><p>在焊盘以外的各部位涂覆一层涂料，如防焊漆，用于阻止这些部位上锡。阻焊层用于在设计过程中匹配焊盘，是自动产生的。Protel 99 SE提供了Top Solder(顶层)和Bottom Solder(底层)两个阻焊层。</p>
+<h5 id="5-Paste-mask-layer-锡膏防护层，SMD贴片层"><a href="#5-Paste-mask-layer-锡膏防护层，SMD贴片层" class="headerlink" title="5 Paste mask layer(锡膏防护层，SMD贴片层)"></a>5 Paste mask layer(锡膏防护层，SMD贴片层)</h5><p>它和阻焊层的作用相似，不同的是在机器焊接时对应的表面粘贴式元件的焊盘。Protel 99 SE提供了Top Paste(顶层)和Bottom Paste(底层)两个锡膏防护层。</p>
+<p>主要针对PCB板上的SMD元件。如果板全部放置的是Dip(通孔)元件，这一层就不用输出Gerber文件了。在将SMD元件贴PCB板上以前，必须在 每一个SMD焊盘上先涂上锡膏，在涂锡用的钢网就一定需要这个Paste Mask文件,菲林胶片才可以加工出来。</p>
+<p>Paste Mask层的Gerber输出最重要的一点要清楚，即这个层主要针对SMD元件，同时将这个层与下面即将介绍的Solder Mask作一比较，弄清两者的不同作用，因为从菲林胶片图中看这两个胶片图很相似。</p>
+<h5 id="6-Keep-out-layer-禁止布线层"><a href="#6-Keep-out-layer-禁止布线层" class="headerlink" title="6 Keep out layer(禁止布线层)"></a>6 Keep out layer(禁止布线层)</h5><p>用于定义在电路板上能够有效放置元件和布线的区域。在该层绘制一个封闭区域作为布线有效区，在该区域外是不能自动布局和布线的。</p>
+<h5 id="7-Silkscreen-layer-丝印层"><a href="#7-Silkscreen-layer-丝印层" class="headerlink" title="7 Silkscreen layer(丝印层)"></a>7 Silkscreen layer(丝印层)</h5><p>​    丝印层主要用于放置印制信息，如元件的轮廓和标注，各种注释字符等。Protel 99 SE提供了Top Overlay和Bottom Overlay两个丝印层。一般，各种标注字符都在顶层丝印层，底层丝印层可关闭。</p>
+<h5 id="8-Multi-layer-多层"><a href="#8-Multi-layer-多层" class="headerlink" title="8 Multi layer(多层)"></a>8 Multi layer(多层)</h5><p>​    电路板上焊盘和穿透式过孔要穿透整个电路板，与不同的导电图形层建立电气连接关系，因此系统专门设置了一个抽象的层—多层。一般，焊盘与过孔都要设置在多层上，如果关闭此层，焊盘与过孔就无法显示出来。</p>
+<h5 id="9-Drill-layer-钻孔层"><a href="#9-Drill-layer-钻孔层" class="headerlink" title="9 Drill layer(钻孔层)"></a>9 Drill layer(钻孔层)</h5><p>​    钻孔层提供电路板制造过程中的钻孔信息(如焊盘，过孔就需要钻孔)。Protel 99 SE提供了Drill gride(钻孔指示图)和Drill drawing(钻孔图)两个钻孔层。</p>
+<h4 id="0-相应的在eagle中也有很多的层（常用的用绿色标记）"><a href="#0-相应的在eagle中也有很多的层（常用的用绿色标记）" class="headerlink" title="0 相应的在eagle中也有很多的层（常用的用绿色标记）"></a>0 相应的在eagle中也有很多的层（常用的用绿色标记）</h4><p>In Layout and Package Editor</p>
+<p>1 Top Tracks， top side<br>2 Route2 Inner layer (signal or supply)<br>3 Route3 Inner layer (signal or supply)<br>4 Route4 Inner layer (signal or supply)<br>5 Route5 Inner layer (signal or supply)<br>6 Route6 Inner layer (signal or supply)<br>7 Route7 Inner layer (signal or supply)<br>8 Route8 Inner layer (signal or supply)<br>9 Route9 Inner layer (signal or supply)<br>10 Route10 Inner layer (signal or supply)<br>11 Route11 Inner layer (signal or supply)<br>12 Route12 Inner layer (signal or supply)<br>13 Route13 Inner layer (signal or supply)<br>14 Route14 Inner layer (signal or supply)<br>15 Route15 Inner layer (signal or supply)<br>16 Bottom Tracks， bottom side<br>17 Pads Pads (through-hole)元件的引脚（过孔型，贴片引脚算在顶层和底层上）<br>18 Vias Vias (through all layers)过孔<br>19 Unrouted Airlines (rubber bands)<br>20 Dimension Board outlines (circles for holes) *)板子外形，相当于机械层<br>21 tPlace Silk screen， top side丝印层<br>22 bPlace Silk screen， bottom side丝印层<br>23 tOrigins Origins， top side (generated autom.)元件中间有个十字叉，代表元件位置<br>24 bOrigins Origins， bottom side (generated autom.)<br>25 tNames Service print， top side (component NAME)<br>26 bNames Service print， bottom s. (component NAME)<br>27 tValues Component VALUE， top side<br>28 bValues Component VALUE， bottom side<br>21~28制版时可全部放在丝印层<br>29 tStop Solder stop mask， top side (gen. autom.)<br>30 bStop Solder stop mask， bottom side (gen. Autom.)<br>31 tCream Solder cream， top side<br>32 bCream Solder cream， bottom side<br>33 tFinish Finish， top side<br>34 bFinish Finish， bottom side<br>35 tGlue Glue mask， top side<br>36 bGlue Glue mask， bottom side<br>37 tTest Test and adjustment information， top side<br>38 bTest Test and adjustment inf.， bottom side<br>39 tKeepout Restricted areas for components， top side<br>40 bKeepout Restricted areas for components， bottom s.<br>41 tRestrict Restricted areas for copper， top side<br>42 bRestrict Restricted areas for copper， bottom side<br>43 vRestrict Restricted areas for vias<br>44 Drills Conducting through-holes<br>45 Holes Non-conducting holes<br>46 Milling Milling<br>47 Measures Measures<br>48 Document Documentation<br>49 Reference Reference marks<br>51 tDocu Detailed top screen print<br>52 bDocu Detailed bottom screen print</p>
+<p>​    机械层是定义整个PCB板的外观的，其实我们在说机械层的时候，就是指整个PCB板的外形结构。禁止布线层是我们在布电气特性的铜时定义的边界，也就是说 我们先定义了禁止布线层后，我们在以后的布过程中，所布的具有电气特性的线是不可能超出禁止布线层的边界。topoverlay 和 bottomoverlay 是定义顶层和底层的丝印字符，就是我们在PCB板上看到的元件编号和一些字符。toppaste 和 bottompaste是顶层和底层焊盘层，它就是指我们可以看到的露在外面的铜铂，（比如我们在顶层布线层画了一根导线，这根导线我们在PCB上所看到 的只是一根线而已，它是被整个绿油盖住的，但是我们在这根线的位置上的toppaset层上画一个方形，或一个点，所打出来的板上这个方形和这个点就没有 绿油了，而是铜铂。topsolder 和 bottomsolder 这两个层刚刚和前面两个层相反，可以这样说，这两个层就是要盖绿油的层，multilaye这个层实际上就和机械层差不多了，顾名恩义，这个层就是指 PCB板的所有层。</p>
+<h4 id="阻焊层和助焊层的区分"><a href="#阻焊层和助焊层的区分" class="headerlink" title="阻焊层和助焊层的区分"></a>阻焊层和助焊层的区分</h4><p>​    阻焊层：solder mask，是指板子上要上绿油的部分；因为它是负片输出，所以实际上有solder mask的部分实际效果并不上绿油，而是镀锡，呈银白色！</p>
+<p>​    助焊层：paste mask，是机器贴片时要用的，是对应所有贴片元件的焊盘的，大小与toplayer/bottomlayer层一样，是用来开钢网漏锡用的。</p>
+<p>​    要点：两个层都是上锡焊接用的，并不是指一个上锡，一个上绿油；那么有没有一个层是指上绿油的层，只要某个区域上有该层，就表示这区域是上绝缘绿油的呢？ 暂时我还没遇见有这样一个层！我们画的PCB板，上面的焊盘默认情况下都有solder层，所以制作成的PCB板上焊盘部分是上了银白色的焊锡的，没有上 绿油这不奇怪；但是我们画的PCB板上走线部分，仅仅只有toplayer或者bottomlayer层，并没有solder层，但制成的PCB板上走线 部分都上了一层绿油。</p>
+<p>​    那可以这样理解：1、阻焊层的意思是在整片阻焊的绿油上开窗，目的是允许焊接！2、默认情况下，没有阻焊层的区域都要上绿油！3、paste mask层用于贴片封装！SMT封装用到了：toplayer层，topsolder层，toppaste层，且toplayer和toppaste一样 大小，topsolder比它们大一圈。 DIP封装仅用到了：topsolder和multilayer层（经过一番分解，我发现multilayer层其实就是 toplayer，bottomlayer，topsolder，bottomsolder层大小重叠），且topsolder/bottomlayer 比toplayer/bottomlayer大一圈。</p>
+<p>疑问：“solder层相对应的铜皮层有铜才会镀锡或镀金”这句话是否正确？这句话是一个工作在生产PCB厂的人说的，他的意思就是说：要想使画在 solder层的部分制作出来的效果是镀锡，那么对应的solder层部分要有铜皮（即：与solder层对应的区域要有toplayer或 bottomlayer层的部分）！虽然这么说，但我曾经看到过一块PCB 板，上面一块镀锡区域，只画了solder层，在pcb图上，与它对应的区域并没有铜皮层！不知孰对孰错？</p>
+<p>   现在：我得出一个结论：：“solder层相对应的铜皮层有铜才会镀锡或镀金”这句话是正确的！solder层表示的是不覆盖绿油的区域！</p>
+<p>PCB的各层定义及描述：</p>
+<p>1、TOP LAYER（顶层布线层）：设计为顶层铜箔走线。如为单面板则没有该层。</p>
+<p>2、BOMTTOM LAYER（底层布线层）：设计为底层铜箔走线。</p>
+<p>3、TOP/BOTTOM SOLDER（顶层/底层阻焊绿油层）：顶层/底层敷设阻焊绿油，以防止铜箔上锡，保持绝缘。在焊盘、过孔及本层非电气走线处阻焊绿油开窗。</p>
+<p>​    焊盘在设计中默认会开窗（OVERRIDE：0.1016mm），即焊盘露铜箔，外扩0.1016mm，波峰焊时会上锡。建议不做设计变动，以保证可焊性；</p>
+<p>​    过孔在设计中默认会开窗（OVERRIDE：0.1016mm），即过孔露铜箔，外扩0.1016mm，波峰焊时会上锡。如果设计为防止过孔上锡，不要露 铜，则必须将过孔的附加属性SOLDER MASK（阻焊开窗）中的PENTING选项打勾选中，则关闭过孔开窗。</p>
+<p>​    另外本层也可单独进行非电气走线，则阻焊绿油相应开窗。如果是在铜箔走线上面，则用于增强走线过电流能力，焊接时加锡处理；如果是在非铜箔走线上面，一般设计用于做标识和特殊字符丝印，可省掉制作字符丝印层。</p>
+<p>4、TOP/BOTTOM PASTE（顶层/底层锡膏层）：该层一般用于贴片元件的SMT回流焊过程时上锡膏，和印制板厂家制板没有关系，导出GERBER时可删除，PCB设计时保持默认即可。</p>
+<p>5、TOP/BOTTOM OVERLAY（顶层/底层丝印层）：设计为各种丝印标识，如元件位号、字符、商标等。</p>
+<p>6、MECHANICAL LAYERS（机械层）：设计为PCB机械外形，默认LAYER1为外形层。其它LAYER2/3/4等可作为机械尺寸标注或者特殊用途，如某些板子需要制作导电碳油时可以使用LAYER2/3/4等，但是必须在同层标识清楚该层的用途。</p>
+<p>7、KEEPOUT LAYER（禁止布线层）：设计为禁止布线层，很多设计师也使用做PCB机械外形，如果PCB上同时有KEEPOUT和MECHANICAL LAYER1，则主要看这两层的外形完整度，一般以MECHANICAL LAYER1为准。建议设计时尽量使用MECHANICAL LAYER1作为外形层，如果使用KEEPOUT LAYER作为外形，则不要再使用MECHANICAL LAYER1，避免混淆！</p>
+<p>8、MIDLAYERS（中间信号层）：多用于多层板，我司设计很少使用。也可作为特殊用途层，但是必须在同层标识清楚该层的用途。</p>
+<p>9、INTERNAL PLANES（内电层）：用于多层板，我司设计没有使用。</p>
+<p>10、MULTI LAYER（通孔层）：通孔焊盘层。</p>
+<p>11、DRILL GUIDE（钻孔定位层）：焊盘及过孔的钻孔的中心定位坐标层。</p>
+<p>12、DRILL DRAWING（钻孔描述层）：焊盘及过孔的钻孔孔径尺寸描述层。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+       
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div style="color:#FC6423;">虽然很不要脸，但是还请您多多打赏 ^_^</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wepay.png" alt="ppj 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="ppj 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/29493/" rel="next" title="SEO优化-关于img的alt与title">
+                <i class="fa fa-chevron-left"></i> SEO优化-关于img的alt与title
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/18226/" rel="prev" title="Matlab和VC++混合编程终极配置版">
+                Matlab和VC++混合编程终极配置版 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/me.jpg" alt="ppj">
+            
+              <p class="site-author-name" itemprop="name">ppj</p>
+              <p class="site-description motion-element" itemprop="description">海纳百川，有容乃大</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">59</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">105</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <span class="exturl" data-url="aHR0cHM6Ly9scHA3NzcuZ2l0ZWUuaW8vZGlhbmJhby8=" title="https://lpp777.gitee.io/dianbao/">电报机</span>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-Signal-layer-信号层"><span class="nav-number">1.</span> <span class="nav-text">1 Signal layer(信号层)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-Internal-plane-layer-内部电源-接地层"><span class="nav-number">2.</span> <span class="nav-text">2 Internal plane layer(内部电源/接地层)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-Mechanical-layer-机械层"><span class="nav-number">3.</span> <span class="nav-text">3 Mechanical layer(机械层)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-Solder-mask-layer-阻焊层"><span class="nav-number">4.</span> <span class="nav-text">4 Solder mask layer(阻焊层)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-Paste-mask-layer-锡膏防护层，SMD贴片层"><span class="nav-number">5.</span> <span class="nav-text">5 Paste mask layer(锡膏防护层，SMD贴片层)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-Keep-out-layer-禁止布线层"><span class="nav-number">6.</span> <span class="nav-text">6 Keep out layer(禁止布线层)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7-Silkscreen-layer-丝印层"><span class="nav-number">7.</span> <span class="nav-text">7 Silkscreen layer(丝印层)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8-Multi-layer-多层"><span class="nav-number">8.</span> <span class="nav-text">8 Multi layer(多层)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9-Drill-layer-钻孔层"><span class="nav-number">9.</span> <span class="nav-text">9 Drill layer(钻孔层)</span></a></li></ol><li class="nav-item nav-level-4"><a class="nav-link" href="#0-相应的在eagle中也有很多的层（常用的用绿色标记）"><span class="nav-number"></span> <span class="nav-text">0 相应的在eagle中也有很多的层（常用的用绿色标记）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#阻焊层和助焊层的区分"><span class="nav-number"></span> <span class="nav-text">阻焊层和助焊层的区分</span></a></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PPJ原创博客</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <span class="exturl theme-link" data-url="aHR0cHM6Ly9oZXhvLmlv">Hexo</span> 强力驱动</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@7.1.2/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'dark'});
+    }
+  </script>
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.5.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.5.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.5.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.5.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: true,
+        notify: false,
+        appId: 'DBPspH0JVeKk8sxAjHYtXODh-gzGzoHsz',
+        appKey: 'HLutKP3fTGE90kRNxD3byBTO',
+        placeholder: '你有什么想说的吗?',
+        avatar:'wavatar',
+        meta:guest,
+        pageSize:'10' || 10,
+        visitor: false
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script type="text/javascript" src="/js/src/exturl.js?v=6.5.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

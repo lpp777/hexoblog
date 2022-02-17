@@ -1,0 +1,344 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>收发电报</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+	<!--标准mui.css-->
+	<link rel="stylesheet" href="mui.min.css">
+	<link rel="stylesheet" type="text/css" href="app.css" />
+	<!--App自定义的css-->
+	<!--<link rel="stylesheet" type="text/css" href="../css/app.css" />-->
+	<style>
+		.boot {
+			display: block;
+			width: 120px;
+			margin: 10px auto;
+		}
+
+		.sendBtn {
+			margin: 20px auto;
+		}
+
+		#info {
+			padding: 20px 10px;
+		}
+
+        #help {
+			margin: 0px auto 20px auto;
+			color: #007AFF;
+			font-size: large;
+		}
+	</style>
+
+</head>
+
+<body>
+	<header class="mui-bar mui-bar-nav">
+		<h1 class="mui-title">电报机</h1>
+	</header>
+
+
+	<div class="mui-content">
+		<div class="shoubao" style="margin: 5px;text-align: center;">
+
+			<table class="ppj" width="100%">
+				<tr>
+					<th>
+						<font color="#007AFF">收听频道: </font>
+						<div class="mui-numbox" data-numbox-min='1'>
+							<button class="mui-btn-numbox-minus" type="button"> - </button>
+							<input id="receive_channel" class="mui-input-numbox" type="number" />
+							<button class="mui-btn-numbox-plus" type="button"> + </button>
+						</div>
+					</th>
+
+					<th>
+						<button id='promptBtn' type="button" class="boot mui-btn mui-btn-primary">开机</button>
+					</th>
+				</tr>
+
+				<tr>
+					<td>
+						<h5>状态:</h5>
+					</td>
+					<td>
+						<h5 id="info"></h5>
+					</td>
+				</tr>
+			</table>
+
+			<h5>morse code：</h5>
+			<div class="mui-input-row" style="margin: 10px 5px;">
+				<textarea id="morse_code" rows="5" readonly="readonly"></textarea>
+			</div>
+
+			<h5>char code：</h5>
+			<div class="mui-input-row" style="margin: 10px 5px;">
+				<textarea id="char_code" rows="5" readonly="readonly"></textarea>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="mui-content">
+        
+        <table id="help" >
+				<tr>
+					<td>A·-</td><td>B-···</td><td>C-·-·</td><td>D-··</td>
+					<td>E·</td><td>F··-·</td><td>G--·</td><td>H····</td>
+					<td>I··</td>
+				</tr>
+				<tr>					
+					<td>J·---</td>
+					<td>K-·-</td><td>L·-··</td>
+					<td>M--</td><td>N-·</td><td>O---</td><td>P·--·</td>
+					<td>Q--·-</td><td>R·-·</td>
+				</tr>
+				<tr>			
+					<td>S···</td><td>T-</td><td>U··-</td><td>V···-</td>
+					<td>W·--</td><td>X-··-</td><td>Y-·--</td>
+					<td>Z--··</td><td>1·---</td>
+				</tr>
+				<tr>
+					<td>2··---</td>
+					<td>3···--</td><td>4····-</td>				
+					<td>5·····</td><td>6-····</td>				
+					<td>7--···</td><td>8---··</td>
+					<td>9----·</td><td>0-----</td>
+				</tr>
+			</table>
+
+		<div class="fabao" style="margin: auto 10px;">
+			<table class="ppj" width="100%">
+				<tr>
+					<th>
+						<span>
+							<font color="#FF5053">发报</font>
+						</span>
+						<div class="mui-numbox" data-numbox-min='1'>
+							<button class="mui-btn-numbox-minus" type="button"> - </button>
+							<input id="send_channel" class="mui-input-numbox" type="number" />
+							<button class="mui-btn-numbox-plus" type="button"> + </button>
+						</div>
+					</th>
+					<th>
+						<button id="wait_code" type="button" style="display: block;width: 120px;"
+							class="mui-btn mui-btn-royal mui-btn-outlined">
+							codes
+						</button>
+					</th>
+					<th>
+						<div id="switchBtn" class="mui-switch">
+							<div class="mui-switch-handle"></div>
+						</div>
+					</th>
+				</tr>
+			</table>
+
+			<table width="100%">
+				<tr>
+					<td>
+						<button id="sendBtn_DI" disabled="true" type="button"
+							class="sendBtn mui-btn mui-btn-royal mui-btn-block mui-btn-outlined">
+							滴&nbsp;&nbsp;·
+						</button>
+					</td>
+					<td> &nbsp;</td>
+					<td>
+						<button id="sendBtn_DA" disabled="true" type="button"
+							class="sendBtn mui-btn mui-btn-royal mui-btn-block mui-btn-outlined">
+							答&nbsp;&nbsp;-
+						</button>
+					</td>
+				</tr>
+			</table>
+
+
+		</div>
+	</div>
+</body>
+
+</html>
+
+
+
+
+<script src="mqtt-min.js"></script>
+<script src="mui.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+	//mui初始化
+	mui.init();
+
+	booted = false;
+	receive_channel = 0;
+	send_channel = 0;
+	sendcodes = "";
+	sendflag = null;
+
+	info = document.getElementById("info");
+	bootBtn = document.getElementById("promptBtn");
+	sendBtn_DI = document.getElementById("sendBtn_DI");
+	sendBtn_DA = document.getElementById("sendBtn_DA");
+	switchBtn = document.getElementById("switchBtn");
+	morse_code = document.getElementById("morse_code");
+	char_code = document.getElementById("char_code");
+	wait_code = document.getElementById("wait_code");
+
+	bootBtn.addEventListener('tap', function (e) {
+		if (!booted) {
+			booted = true;
+			receive_channel = document.getElementById("receive_channel").value;
+			bootBtn.setAttribute("class", "boot mui-btn mui-btn-danger");
+			bootBtn.innerText = "关机";
+			setTimeout("bootDianBao()", "200");
+
+		} else {
+			booted = false;
+			bootBtn.setAttribute("class", "boot mui-btn mui-btn-primary");
+			bootBtn.innerText = "开机";
+			info.innerText = ' ';
+			client.disconnect();
+
+		}
+	});
+
+	switchBtn.addEventListener('toggle', function (event) {
+		//event.detail.isActive 可直接获取当前状态
+		var sw_stat = event.detail.isActive ? 1 : 0;
+		console.log(sw_stat)
+		if (sw_stat == 1) {
+			sendBtn_DI.disabled = false;
+			sendBtn_DA.disabled = false;
+			send_channel = document.getElementById("send_channel").value;
+		} else {
+			sendBtn_DI.disabled = true;
+			sendBtn_DA.disabled = true;
+		}
+	});
+
+	sendBtn_DI.addEventListener('tap', function () {
+		console.log(".");
+		sendcodes += '.';
+		wait_code.innerText = sendcodes;
+		sendout();
+	});
+	sendBtn_DA.addEventListener('tap', function () {
+		console.log("-");
+		sendcodes += '-';
+		wait_code.innerText = sendcodes;
+		sendout();
+	});
+
+	wait_code.addEventListener('tap', function () {
+		wait_code.innerText = "sended";
+		wait_code.setAttribute("class", "mui-btn mui-btn-royal")
+	});
+
+	function bootDianBao() {
+		hostname = '19x2pvq.mqtt.iot.bj.baidubce.com';
+		port = 443;
+		clientId = "user_" + receive_channel+ "_pp";
+		topic = 'DianBao';
+		connectOptions = {
+			timeout: 50,
+			userName: "19x2pvq/commen_user",
+			password: "XVgIy5zwExkawylm",
+			keepAliveInterval: 50,
+			useSSL: true,
+			onSuccess: onConnect,
+			onFailure: function (e) {
+				console.log(e);
+			}
+		};
+
+		client = new Paho.MQTT.Client(hostname, port, clientId);
+		// set callback handlers
+		client.onConnectionLost = onConnectionLost;
+		client.onMessageArrived = onMessageArrived;
+		client.connect(connectOptions);
+		info.innerText = " 搜索信号 ";
+	}
+
+	function onConnect() {
+		// Once a connection has been made, make a subscription and send a message.
+		console.log("onConnect");
+		client.subscribe(topic);
+		info.innerText = " 频道" + receive_channel + "链接建立 ";
+	}
+
+	function onConnectionLost(responseObject) {
+		if (responseObject.errorCode !== 0) {
+			console.log("onConnectionLost:" + responseObject.errorMessage);
+		}
+	}
+
+	function onMessageArrived(message) {
+		console.log("onMessageArrived:" + message.payloadString);
+		var remsg = message.payloadString;
+		var rejson = JSON.parse(remsg);
+		if (rejson.channel == receive_channel) {
+			var oldcode = morse_code.value
+			morse_code.value = oldcode + " " + rejson.msg;
+			morse_code.scrollTop = morse_code.scrollHeight;
+			transcode(rejson.msg);
+		}
+
+	}
+
+	MCODES = {
+		'A': '.-', 'B': '-...', 'C': '-.-.',
+		'D': '-..', 'E': '.', 'F': '..-.',
+		'G': '--.', 'H': '....', 'I': '..',
+		'J': '.---', 'K': '-.-', 'L': '.-..',
+		'M': '--', 'N': '-.', 'O': '---',
+		'P': '.--.', 'Q': '--.-', 'R': '.-.',
+		'S': '...', 'T': '-', 'U': '..-',
+		'V': '...-', 'W': '.--', 'X': '-..-',
+		'Y': '-.--', 'Z': '--..',
+		'0': '-----', '1': '.----', '2': '..---',
+		'3': '...--', '4': '....-', '5': '.....',
+		'6': '-....', '7': '--...', '8': '---..',
+		'9': '----.',
+	};
+
+	function transcode(code) {
+		msg = '*';
+		for (var c in MCODES) {
+			if (MCODES[c] == code) {
+				msg = c;
+				break;
+			}
+
+		}
+		var oldchar = char_code.value
+		char_code.value = oldchar + " " + msg;
+		char_code.scrollTop = char_code.scrollHeight;
+	}
+
+	function sendcode() {
+		mui.trigger(wait_code, 'tap');
+		var json_msg = { "channel": send_channel, "msg": sendcodes };
+		var str_msg = JSON.stringify(json_msg);
+		sendcodes = "";
+		message = new Paho.MQTT.Message(str_msg);
+		message.destinationName = topic;
+		client.send(message);
+		console.log("sendout:" + str_msg);
+
+
+	}
+
+	function sendout() {
+		wait_code.setAttribute("class", "mui-btn mui-btn-royal mui-btn-outlined")
+		if (sendflag) {
+			sendflag = clearTimeout(sendflag);
+		}
+		sendflag = setTimeout("sendcode()", 800);
+	}
+</script>

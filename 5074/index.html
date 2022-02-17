@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.5.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=6.5.0">
+
+
+  <link rel="mask-icon" href="/images/favicon.ico?v=6.5.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.5.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。 由于需要在Windows平台上给自主软件进行签名，查阅资料，主要借鉴了 makecert 制作数字证书 和 使用SignTool.exe对文件进行数字签名两篇博文，成功完成签名。 本文记录一下签名的过程。">
+<meta name="keywords" content="数字签名,代码签名,signtool">
+<meta property="og:type" content="article">
+<meta property="og:title" content="给软件加上数字签名">
+<meta property="og:url" content="https://www.openlinux.top/5074/index.html">
+<meta property="og:site_name" content="胖胖哒">
+<meta property="og:description" content="数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。 由于需要在Windows平台上给自主软件进行签名，查阅资料，主要借鉴了 makecert 制作数字证书 和 使用SignTool.exe对文件进行数字签名两篇博文，成功完成签名。 本文记录一下签名的过程。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://www.openlinux.top/5074/page.jpg">
+<meta property="og:image" content="https://www.openlinux.top/5074/exe.jpg">
+<meta property="og:image" content="https://www.openlinux.top/5074/demo.jpg">
+<meta property="og:image" content="https://www.openlinux.top/5074/before.jpg">
+<meta property="og:image" content="https://www.openlinux.top/5074/after.jpg">
+<meta property="og:updated_time" content="2022-02-17T07:31:32.486Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="给软件加上数字签名">
+<meta name="twitter:description" content="数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。 由于需要在Windows平台上给自主软件进行签名，查阅资料，主要借鉴了 makecert 制作数字证书 和 使用SignTool.exe对文件进行数字签名两篇博文，成功完成签名。 本文记录一下签名的过程。">
+<meta name="twitter:image" content="https://www.openlinux.top/5074/page.jpg">
+
+
+
+
+
+
+  <link rel="canonical" href="https://www.openlinux.top/5074/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>给软件加上数字签名 | 胖胖哒</title>
+  
+
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3e7dc8ac84df8794dd57fea74e0e6f95";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">胖胖哒</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <h1 class="site-subtitle" itemprop="description">PPJ的日志博客</h1>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.openlinux.top/5074/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ppj">
+      <meta itemprop="description" content="海纳百川，有容乃大">
+      <meta itemprop="image" content="/images/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖胖哒">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">给软件加上数字签名
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+
+
+          
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/5074/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/5074/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <img src="/5074/page.jpg">
+<p>数字签名是一种权利保护手段，也是一种安全验证措施。在网络中扮演极其重要的角色。</p>
+<p>由于需要在Windows平台上给自主软件进行签名，查阅资料，主要借鉴了 <span class="exturl" data-url="aHR0cHM6Ly93d3cuY25ibG9ncy5jb20vYWlxaW5ncWluZy9wLzQ1MDMwNTEuaHRtbA==" title="https://www.cnblogs.com/aiqingqing/p/4503051.html">makecert 制作数字证书<i class="fa fa-external-link"></i></span> 和 <span class="exturl" data-url="aHR0cHM6Ly93d3cuY25ibG9ncy5jb20vZGdqbnN6Zi9wLzEyMzMyNDk4Lmh0bWw=" title="https://www.cnblogs.com/dgjnszf/p/12332498.html">使用SignTool.exe对文件进行数字签名<i class="fa fa-external-link"></i></span>两篇博文，成功完成签名。</p>
+<p>本文记录一下签名的过程。</p>
+<a id="more"></a>
+<p>在Windows下微软提供了一套完整的数字签名套件，一般包含在Windows SDK中，可参考 <span class="exturl" data-url="aHR0cHM6Ly9kb2NzLm1pY3Jvc29mdC5jb20vemgtY24vd2luZG93cy1oYXJkd2FyZS9kcml2ZXJzL2RldnRlc3QvdG9vbHMtZm9yLXNpZ25pbmctZHJpdmVycw==" title="https://docs.microsoft.com/zh-cn/windows-hardware/drivers/devtest/tools-for-signing-drivers">https://docs.microsoft.com/zh-cn/windows-hardware/drivers/devtest/tools-for-signing-drivers<i class="fa fa-external-link"></i></span> 。<img src="/5074/exe.jpg"></p>
+<p>主要用到了四个工具：<code>makecert.exe</code>、<code>cert2spc.exe</code>、<code>pvk2pfx.exe</code> 和 <code>signtool.exe</code>。Windows SDK太大，也可以去网上下载单独的exe程序和相应的dll库。</p>
+<p>主要步骤：</p>
+<h2 id="1-自制数字证书"><a href="#1-自制数字证书" class="headerlink" title="1.自制数字证书"></a>1.自制数字证书</h2><p>用于代码签名的数字证书目前没有免费的，有能力的可以去购买。做实验的话，就自己生成一份自签名证书就OK了。signtool签名工具需要pfx格式的证书，因此下面主要是制作一个pfx的证书。Windows SDK内的四个exe都是命令行形式的，看一下帮助信息也不太难。</p>
+<p>(1)  首先制作一份通用的自签名证书cer。用makecert，中间会要求输入密码，假设为123<br>   <code>makecert.exe  -r  -n &quot;CN=宇宙香烟厂&quot;  -sv path/yuzhou.pvk path/yuzhou.cer</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">MakeCert用于创建x.509标准的证书。命令格式</span><br><span class="line">MakeCert [/b DateStart] [/e DateEnd] [/len KeyLength] [/m nMonths] [/n &quot;Name&quot;] [/pe] [/r] [/sc SubjectCertFile] [/sk SubjectKey] [/sr SubjectCertStoreLocation] [/ss SubjectCertStoreName] [/sv SubjectKeyFile] OutputFile</span><br><span class="line"></span><br><span class="line">   -r 表示自签名</span><br><span class="line">   -n 表示证书名称</span><br><span class="line">   -sv 表示指定保存私钥pvk文件的名称</span><br><span class="line">    OutputFile 生成的cer证书的文件的名称</span><br><span class="line">    </span><br><span class="line">   其中证书名称符合X.500标准 [参考1](https://zhuanlan.zhihu.com/p/165306642) [参考2](https://tools.ietf.org/rfc/rfc5280.txt)，常用的有</span><br><span class="line">           国家（countryName，C），</span><br><span class="line">           组织（organizationName，O），</span><br><span class="line">           组织单位（organizationalUnitName，OU），</span><br><span class="line">           专有名称限定符（dnQualifier），</span><br><span class="line">           州或省名（stateOrProvinceName，ST），</span><br><span class="line">           通用名称（commonName，CN</span><br></pre></td></tr></table></figure>
+<p>这样就得到了通用证书文件<code>yuzhou.cer</code>和对应的私钥文件<code>yuzhou.pvk</code></p>
+<p>(2)  将cer证书转换为SPC发布者证书<br>   <code>cert2spc.exe  path/yuzhou.cer  path/yuzhou.spc</code><br>这样就得到了发布者证书<code>yuzhou.spc</code></p>
+<p>(3)  将公钥(SPC)和私钥合并为一个windows格式的包含私钥的证书pfx<br>   <code>pvk2pfx.exe  -pvk path/yuzhou.pvk  -spc path/yuzhou.spc  -pi 123  -pfx path/yuzhou.pfx</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Pvk2Pfx将.spc、.cer和.pvk 文件中包含的公钥和私钥信息复制到个人信息交换文件.pfx中。命令格式</span><br><span class="line">pvk2pfx /pvk pvkfilename.pvk [/pi pvkpassword] /spc spcfilename.ext [/pfx pfxfilename.pfx [/po pfxpassword] ]</span><br><span class="line"></span><br><span class="line">    -pfx 表示生成的pfx文件名</span><br><span class="line">    -po 表示pfx的加密密码，如果忽略，则使用原来pvk私钥的密码(-pi)</span><br></pre></td></tr></table></figure></p>
+<p>也可以省去第2步，直接用pvk和cer生成pfx。只要把-spc的输入换为cer文件即可<br><code>pvk2pfx.exe  -pvk path/yuzhou.pvk  -spc path/yuzhou.cer  -pi 123  -pfx path/yuzhou.pfx</code></p>
+<p>这样一份用于代码签名的数字证书<code>yuzhou.pfx</code>就做好了</p>
+<h2 id="2-用数字证书签名并打上时间戳"><a href="#2-用数字证书签名并打上时间戳" class="headerlink" title="2.用数字证书签名并打上时间戳"></a>2.用数字证书签名并打上时间戳</h2><p>SignTool用于对文件进行数字签名，验证文件中的签名和时间戳文件。<br><code>signtool.exe sign -f path/yuzhou.pfx -p 123 /t http://timestamp.digicert.com  path/bin.exe</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/f 指定PFX文件</span><br><span class="line">/P 指定打开PFX文件时要使用的密码</span><br><span class="line">/T 指定时间戳服务器的 URL。 如果未提供此选项，则签名文件不是时间戳。</span><br></pre></td></tr></table></figure>
+<p>这样文件就被证书签名并打上了时间戳。别人想假冒你也假冒不了了。</p>
+<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p>demo文件<br><img src="/5074/demo.jpg"></p>
+<p>没有签名之前<br><img src="/5074/before.jpg"></p>
+<p>签名之后<br><img src="/5074/after.jpg"></p>
+<p>可以看到exe文件有了数字签名和时间戳</p>
+<p><strong>注意：SignTool只能对windows平台的可执行文件exe、dll进行签名，不能处理linux等其他平台的可执行文件</strong></p>
+<h1 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h1><h4 id="走过的坑：沃通有一个签名工具-wosigncode-exe-，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。"><a href="#走过的坑：沃通有一个签名工具-wosigncode-exe-，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。" class="headerlink" title="走过的坑：沃通有一个签名工具 wosigncode.exe ，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。"></a>走过的坑：沃通有一个签名工具 wosigncode.exe ，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。</h4><h2 id="加密-和-签名"><a href="#加密-和-签名" class="headerlink" title="加密 和 签名"></a>加密 和 签名</h2><p>加密：通过一种算法将一个数变成另一个数，目的是为了原数据的保密，使其在没有密码的情况下无法得知原文内容；</p>
+<p>签名：通常伴随着摘要提取算法（比如md5、sha1、sha2等哈希算法），所有者A对全文或摘要用私钥进行加密，并把加密后的信息和原文一起发送给目标B。目的是保证原文的完整性、防纂改。因为原文一旦有变化，md5值就会有明显的变化，通过比对A发来的解密后的摘要和B自己对原文生成的摘要就能知道原文有没有改变。同时B只能用A的公钥才能解密出A发来的加密摘要，保证了来源的真实性，防止纂改。</p>
+<p>比较可知，加密和签名是不同的操作，有不同的目的。加密就是防止原文被偷窥；签名也用到了加密，但目的不是防止原文被偷窥，而是防止原文被纂改。</p>
+<h2 id="公钥-和-私钥"><a href="#公钥-和-私钥" class="headerlink" title="公钥 和 私钥"></a>公钥 和 私钥</h2><p>X509是公钥证书的标准格式。公钥证书是非对称加密的一种方式，即加密解密用不同的密码。非对称机密算法主要使用RSA算法，即生成公钥和私钥一对密码，公钥和私钥一一对应；用公钥加密的数据只能用对应的私钥解密，同样，用私钥加密的数据也只能用对应的公钥。</p>
+<p>对称加密（比如AES）就是加密解密都用同一个密码。</p>
+<h2 id="SSL证书-和-代码签名证书"><a href="#SSL证书-和-代码签名证书" class="headerlink" title="SSL证书 和 代码签名证书"></a>SSL证书 和 代码签名证书</h2><p><strong>SSL证书</strong></p>
+<p>在HTTPS通信中的SSL协议，就是使用了RSA非对称加密算法。服务器端的公钥和网站证书是公开的，任何人都可以获取，但是服务器的私钥是保密的，放在安全的地方。</p>
+<p>虽然SSL通信的基础是RSA非对称加密算法，但是在建立通信后却不用RSA算法了。一是因为RSA算法的计算量大，速度慢；二是因为公钥是公开的，私钥是服务器保密的，这样就只能由用户向服务器发送保密数据，而服务器不能向用户发送保密数据，因为用户用公钥加密数据后，只能用服务器的私钥解密，而私钥只有服务器拥有，数据是安全的；而服务器用私钥加密的数据，能够被所有拥有公钥的人解密，而公钥任何人都能获取，数据等于没有加密。所以SSL中是非对称加密、对称加密、密钥交换算法等一系列算法的共同参与。</p>
+<p>简单说明HTTPS通信的过程：</p>
+<p>1.当浏览器访问网站时，首先下载网站的公钥和证书，通过CA机构验证证书确实属于该网站后才进行后续的数据通信；并确定加密套件</p>
+<p>2.浏览器向服务器发送一个随机数cr</p>
+<p>3.服务器也生成一个随机数sr，并生成DH算法的交换参数sdh，然后将cr、sr、sdh一起用私钥签名后发送给浏览器</p>
+<p>4.浏览器用公钥验证cr、sr、sdh的真实性，如果cr没有篡改则表明通信安全。然后也生成自己的DH算法的交换参数cdh，并用公钥加密后（也可以不加密）发送给服务器</p>
+<p>5.服务器和浏览器都用cdh和sdh生成DH算法最后的密钥ps，DH算法的特性保证了两端能够生成相同的密钥ps，这个密钥只有通信双方知道，其他人是无法获得的，也无法通过前面的cr、sr、sdh、cdh等参数计算出来</p>
+<p>6.服务器和浏览器将cr、sr、ps合在一起用加密套件确定的算法（一般为伪随机函数）生成相同的密码key，作为对称加密的密码。这个密码同样也只有双方知道，其他人也无法计算出来</p>
+<p>7.随后的数据，双方都用对称加密算法的key加密解密数据。</p>
+<p><strong>代码签名证书</strong></p>
+<p>代码签名是对可执行文件或脚本进行数字签名以确认软件作者及保证软件在签名后未被修改或损坏的措施。此措施使用加密散列来验证真实性和完整性。</p>
+<p>作者用自己的证书私钥加密文件的摘要作为签名，然后将签名集成到文件中。也可以打上时间戳，证明文件发布的时间。</p>
+<p>用户下载该文件后，可以查看文件的签名，用作者的公钥解密出摘要。如果文件被篡改了，则摘要将不一样，表明文件有问题了。</p>
+<p>因为私钥加密后的数据，拥有公钥只能查看，不能更改，这也就保证了只有原作者才能修改。如果其他人修改原文件或者摘要，则公钥解密摘要后的结果与文件摘要运算后的结果是不一样的。</p>
+<p>可以看出SSL证书和代码签名证书的使用场景不一样，不能混用。</p>
+<h2 id="linux下的数字签名"><a href="#linux下的数字签名" class="headerlink" title="linux下的数字签名"></a>linux下的数字签名</h2><p>在linux下一般用openssl套件，用私钥加密/签名文件摘要，用公钥验证。</p>
+<h3 id="买不起数字签名证书的可以用openssl自制一份"><a href="#买不起数字签名证书的可以用openssl自制一份" class="headerlink" title="买不起数字签名证书的可以用openssl自制一份"></a>买不起数字签名证书的可以用openssl自制一份</h3><p>1 生成私钥<br><code>openssl genpkey -out privkey.pem</code><br>生成的privkey.pem文件内容如下<br>——-BEGIN RSA PRIVATE KEY——-<br>MIIEpAIBAAKCAQEAkzVWCEgUnVlhwQ8VEfs2Wmi6srTjrhlPiNUhM0D8x8k0hJtK<br>rmBgzxHRkyzgBlRdhHqosQ/M81cnV0dxO87jwvAnavlabza965qMDqAZeTnP+5/n</p>
+<p>2 从私钥中提取公钥<br><code>openssl rsa -in privkey.pem -outform PEM -pubout -out pubkey.pem</code><br>生成的pubkey.pem文件内容如下<br>——-BEGIN PUBLIC KEY——-<br>MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA30YfoyFXaqND++Xyyjba<br>nCO45yCI7mydN6AzRzblFxs6YFv9Dlh14D9ZkFENuMLqWsIM+OEPm0BfI+gTC9sf</p>
+<h3 id="签名"><a href="#签名" class="headerlink" title="签名"></a>签名</h3><p>1 用私钥对文件摘要签名<br><code>openssl dgst -sha256 -sign privkey.pem -out myfile.sign myfile</code></p>
+<p>2 用公钥对文件摘要验证<br><code>openssl dgst -sha256 -verify pubkey.pem -signature myfile.sign myfile</code><br>如果正确则<code>Verified OK</code>，否则<code>Verification Failure</code></p>
+<h3 id="也可以用rsautl套件签名"><a href="#也可以用rsautl套件签名" class="headerlink" title="也可以用rsautl套件签名"></a>也可以用rsautl套件签名</h3><p>1 私钥签名<br><code>openssl rsautl -sign  -inkey privkey.pem  -in myfile  -out myfile.sign</code></p>
+<p>2 公钥验证<br><code>openssl rsautl -verify  -inkey pubkey.pem -pubin -in myfile.sign -out myfile.v</code><br><code>diff myfile myfile.v</code><br>但是这种方式有文件大小的限制，也就是还要先对文件生成摘要，然后对摘要签名。<br>对于小文件，rsautl就是直接用私钥将小文件加密成文件副本，然后用公钥把文件副本还原成文件，比较得到的文件和原文件是否一致。<br>为什么只能直接加密小文件，这是加密原理确定的，数据长度不能大于密钥长度，否则就要分组了。</p>
+<p>可以看到，linux下的文件签名是单独生成了一个签名文件，并没有将签名信息附加到原文件内。对比windows下，查看exe文件的属性就能看到签名信息。这是因为linux下的可执行文件格式ELF目前还没有统一的标准存放签名信息，但是有人尝试对ELF扩展两个段，存放签名，并且从内核上支持读取验证这两个段，比如<span class="exturl" data-url="aHR0cHM6Ly93d3cucmVzZWFyY2hnYXRlLm5ldC9wdWJsaWNhdGlvbi8yMjA5MDA3ODJfRGlnU2lnX1J1bnRpbWVfQXV0aGVudGljYXRpb25fb2ZfQmluYXJpZXNfYXRfS2VybmVsX0xldmVs" title="https://www.researchgate.net/publication/220900782_DigSig_Runtime_Authentication_of_Binaries_at_Kernel_Level">我看到的一篇文献<i class="fa fa-external-link"></i></span></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+       
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div style="color:#FC6423;">虽然很不要脸，但是还请您多多打赏 ^_^</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wepay.png" alt="ppj 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="ppj 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/数字签名/" rel="tag"># 数字签名</a>
+          
+            <a href="/tags/代码签名/" rel="tag"># 代码签名</a>
+          
+            <a href="/tags/signtool/" rel="tag"># signtool</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/39598/" rel="next" title="批量下载HLS的TS文件并无损合并">
+                <i class="fa fa-chevron-left"></i> 批量下载HLS的TS文件并无损合并
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/22851/" rel="prev" title="docker小试">
+                docker小试 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/me.jpg" alt="ppj">
+            
+              <p class="site-author-name" itemprop="name">ppj</p>
+              <p class="site-description motion-element" itemprop="description">海纳百川，有容乃大</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">59</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">105</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <span class="exturl" data-url="aHR0cHM6Ly9scHA3NzcuZ2l0ZWUuaW8vZGlhbmJhby8=" title="https://lpp777.gitee.io/dianbao/">电报机</span>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-自制数字证书"><span class="nav-number">1.</span> <span class="nav-text">1.自制数字证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-用数字证书签名并打上时间戳"><span class="nav-number">2.</span> <span class="nav-text">2.用数字证书签名并打上时间戳</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#效果"><span class="nav-number">3.</span> <span class="nav-text">效果</span></a></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展"><span class="nav-number"></span> <span class="nav-text">扩展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#走过的坑：沃通有一个签名工具-wosigncode-exe-，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。"><span class="nav-number">0.0.1.</span> <span class="nav-text">走过的坑：沃通有一个签名工具 wosigncode.exe ，但是它总是报错说证书类型不匹配，希望沃通能修复这个bug。</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加密-和-签名"><span class="nav-number">1.</span> <span class="nav-text">加密 和 签名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#公钥-和-私钥"><span class="nav-number">2.</span> <span class="nav-text">公钥 和 私钥</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SSL证书-和-代码签名证书"><span class="nav-number">3.</span> <span class="nav-text">SSL证书 和 代码签名证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux下的数字签名"><span class="nav-number">4.</span> <span class="nav-text">linux下的数字签名</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#买不起数字签名证书的可以用openssl自制一份"><span class="nav-number">4.1.</span> <span class="nav-text">买不起数字签名证书的可以用openssl自制一份</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#签名"><span class="nav-number">4.2.</span> <span class="nav-text">签名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#也可以用rsautl套件签名"><span class="nav-number">4.3.</span> <span class="nav-text">也可以用rsautl套件签名</span></a></li></ol></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PPJ原创博客</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <span class="exturl theme-link" data-url="aHR0cHM6Ly9oZXhvLmlv">Hexo</span> 强力驱动</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@7.1.2/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'dark'});
+    }
+  </script>
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.5.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.5.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.5.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.5.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: true,
+        notify: false,
+        appId: 'DBPspH0JVeKk8sxAjHYtXODh-gzGzoHsz',
+        appKey: 'HLutKP3fTGE90kRNxD3byBTO',
+        placeholder: '你有什么想说的吗?',
+        avatar:'wavatar',
+        meta:guest,
+        pageSize:'10' || 10,
+        visitor: false
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script type="text/javascript" src="/js/src/exturl.js?v=6.5.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

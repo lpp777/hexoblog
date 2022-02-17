@@ -1,0 +1,75 @@
+
+
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="mui.min.css">
+		<!--App自定义的css-->
+		<link rel="stylesheet" type="text/css" href="app.css"/>
+		<style>
+			.mui-content-padded{
+			  	margin: 10px;
+			  }
+		</style>
+	</head>
+
+	<body>
+
+		<div class="mui-content">
+		    <div class="mui-content-padded" 
+			style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+		       
+		        <button id="bootBtn" type="button" class="mui-btn mui-btn-danger" 
+				style="width: 200px;height: 80px;"><h2>开机</h2></button>
+		
+		    </div>
+		</div>
+	</body>
+</html>
+
+<script src="mqtt-min.js"></script>
+<script src="mui.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+	//mui初始化
+	mui.init();
+	bootBtn = document.getElementById("bootBtn");
+	
+	function onConnect()
+	{
+		message = new Paho.MQTT.Message("wake");
+		message.destinationName = "PC";
+		client.send(message);
+		console.log("send");
+	}
+
+
+	bootBtn.addEventListener('tap', function (e) {
+		hostname = '19x2pvq.mqtt.iot.bj.baidubce.com';
+		port = 443;
+		clientId = "user_pc_pp";
+		topic = 'PC';
+		connectOptions = {
+			timeout: 50,
+			userName: "19x2pvq/commen_user",
+			password: "XVgIy5zwExkawylm",
+			keepAliveInterval: 50,
+			useSSL: true,
+			onSuccess: onConnect,
+			onFailure: function (e) {
+				console.log(e);
+			}
+		};
+		client = new Paho.MQTT.Client(hostname, port, clientId);
+		client.connect(connectOptions);
+		
+	});
+
+</script>
