@@ -378,6 +378,142 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.openlinux.top/5205/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ppj">
+      <meta itemprop="description" content="海纳百川，有容乃大">
+      <meta itemprop="image" content="/images/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖胖哒">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/5205/" class="post-title-link" itemprop="https://www.openlinux.top/index.html">用ffmpeg合并音视频</a>
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+
+
+          
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/5205/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/5205/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="命令较简单"><a href="#命令较简单" class="headerlink" title="命令较简单"></a>命令较简单</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> merge and convert to mp4</span><br><span class="line">ffmpeg -i video.mp4 -i audio.m4a -vcodec copy -acodec copy file.mp4</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> merge and convert to hls</span><br><span class="line">ffmpeg.exe -i .\video.h264 -i .\audio.mp3 -c copy  -f hls -hls_list_size 0 hls.m3u8</span><br></pre></td></tr></table></figure>
+<p>需要注意的是h264有两种格式，用途有所区分。</p>
+<ul>
+<li>Annex B<br>对应的封装TS、PS</li>
+<li>AVCC<br>对应的封装MP4</li>
+</ul>
+<p>所以，上述命令中，合并成mp4文件的视频源格式可以是Annex B，也可以是AVCC；但合并成hls的视频源，一定要Annex B才行。</p>
+<h1 id="H264的两种格式"><a href="#H264的两种格式" class="headerlink" title="H264的两种格式"></a>H264的两种格式</h1><h2 id="Annex-B"><a href="#Annex-B" class="headerlink" title="Annex B"></a>Annex B</h2><p>分隔符，不表示NALU长度，3字节或者4字节，有防竞争字节<br>GOP：SPS、PPS、IDR、别的数据帧</p>
+<h2 id="AVCC"><a href="#AVCC" class="headerlink" title="AVCC"></a>AVCC</h2><p>分隔符携带NALU长度，4字节（带有NALU长度信息）、有防竞争字节<br>GOP：GOP头部包含extra data，用来存储sequence header、sps、pps</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+       
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://www.openlinux.top/41872/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1085,158 +1221,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://www.openlinux.top/28454/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="ppj">
-      <meta itemprop="description" content="海纳百川，有容乃大">
-      <meta itemprop="image" content="/images/me.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="胖胖哒">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/28454/" class="post-title-link" itemprop="https://www.openlinux.top/index.html">树莓派内核编译及编写驱动</a>
-              
-            
-          </h2>
-        
-
-        <div class="post-meta">
-
-
-          
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/网易博客/" itemprop="url" rel="index"><span itemprop="name">网易博客</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/28454/#comments" itemprop="discussionUrl">
-                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/28454/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>从<a href="https://github.com/raspberrypi" target="_blank" rel="noopener">树莓派Git库</a>这里下载树莓派的内核源码linux 、编译工具tools和fireware固件。<br>将源码解压，查看一下最外层的Makefile，里面有几个字段需要注意 <code>ARCH  CROSS_COMPILE</code><br><img src="/28454/6630320097791614024.png" title="内核编译"></p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/28454/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-         
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-       
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://www.openlinux.top/55061/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1313,136 +1297,6 @@
 <img src="/55061/1.gif">
 <img src="/55061/2.gif">
 <p>是不是不好惹。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-       
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://www.openlinux.top/30414/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="ppj">
-      <meta itemprop="description" content="海纳百川，有容乃大">
-      <meta itemprop="image" content="/images/me.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="胖胖哒">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/30414/" class="post-title-link" itemprop="https://www.openlinux.top/index.html">测量精度与分辨率的区别</a>
-              
-            
-          </h2>
-        
-
-        <div class="post-meta">
-
-
-          
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/30414/#comments" itemprop="discussionUrl">
-                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/30414/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>比如一把尺子，最小刻度是1mm，它的分辨率就是1mm。<br>但是尺子上的1mm到底准不准呢？与1mm的标准长度的差值，就是精度。</p>
-<p>举一对例子：<br>一把尺子，最小刻度是1m，但是这个1m的刻度定的非常准确，与1m的标准长度只有±1mm的误差。<br>那么这把尺子的分辨率是1m，但是测量精度是1mm。就是说用这把尺子量，最小只能量出1m，再往上就是2m，3m，没有中间值。但是量出来的这1m长度非常精确，其真实长度最小是0.99m，最大是1.01m.</p>
-<p>而另一把尺子，最小刻度是0.5m，但是这个0.5m刻度定的很粗糙，与0.5m的标准长度有±0.3m的误差。<br>则这把尺子分辨率是0.5m，而测量精度是0.3m。即用这把尺子量，最小可以量出0.5m的长度，往上就是1m，1.5m，没有中间值。但是由于其精度差，量出来的0.5m，其真实长度最小可能是0.5-0.3=0.2m，最大则是0.8m。</p>
 
           
         
@@ -1785,6 +1639,136 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.openlinux.top/30414/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ppj">
+      <meta itemprop="description" content="海纳百川，有容乃大">
+      <meta itemprop="image" content="/images/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖胖哒">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/30414/" class="post-title-link" itemprop="https://www.openlinux.top/index.html">测量精度与分辨率的区别</a>
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+
+
+          
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/30414/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/30414/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>比如一把尺子，最小刻度是1mm，它的分辨率就是1mm。<br>但是尺子上的1mm到底准不准呢？与1mm的标准长度的差值，就是精度。</p>
+<p>举一对例子：<br>一把尺子，最小刻度是1m，但是这个1m的刻度定的非常准确，与1m的标准长度只有±1mm的误差。<br>那么这把尺子的分辨率是1m，但是测量精度是1mm。就是说用这把尺子量，最小只能量出1m，再往上就是2m，3m，没有中间值。但是量出来的这1m长度非常精确，其真实长度最小是0.99m，最大是1.01m.</p>
+<p>而另一把尺子，最小刻度是0.5m，但是这个0.5m刻度定的很粗糙，与0.5m的标准长度有±0.3m的误差。<br>则这把尺子分辨率是0.5m，而测量精度是0.3m。即用这把尺子量，最小可以量出0.5m的长度，往上就是1m，1.5m，没有中间值。但是由于其精度差，量出来的0.5m，其真实长度最小可能是0.5-0.3=0.2m，最大则是0.8m。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+       
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -1834,7 +1818,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">59</span>
+                    <span class="site-state-item-count">60</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
